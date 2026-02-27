@@ -2,4 +2,6 @@ from django.apps import AppConfig
 
 
 class BlockchainConfig(AppConfig):
-    name = 'apps.blockchain'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.blockchain"
+    verbose_name = "Forensic Blockchain Ledger"

@@ -126,3 +126,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 # DEFAULT PRIMARY KEY
 # ------------------------------------------------------------------ #
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Evidence encryption key (AES-256-GCM master key)
+EVIDENCE_ENCRYPTION_KEY = env("EVIDENCE_ENCRYPTION_KEY")

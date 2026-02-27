@@ -1,0 +1,27 @@
+Mobile captures file
+       ↓
+SHA-256 hash computed (on RAW file)     ← hash is stored in DB
+       ↓
+File encrypted with AES-256-GCM         ← encrypted version uploaded to MinIO
+       ↓
+Only your platform can decrypt          ← key stored in your backend, never in MinIO
+       ↓
+To verify: decrypt → re-hash → compare  ← chain of custody intact
+
+
+------------------------------------------------------------------------------------------
+Flutter sends:  raw_file_bytes + sha256_hash + metadata
+                         ↓
+Django service:
+  1. Verify: sha256(raw_file_bytes) == submitted hash  ✓
+  2. encrypt_file(raw_file_bytes) → encrypted_bytes, nonce
+  3. Upload encrypted_bytes to MinIO
+  4. Store nonce in Evidence.encryption_nonce
+  5. Store original_size_bytes and stored_size_bytes
+  6. Seal in ForensicLog (blockchain)
+                         ↓
+Police dashboard wants to view:
+  1. Download encrypted_bytes from MinIO
+  2. decrypt_file(encrypted_bytes, nonce) → raw_bytes
+  3. sha256(raw_bytes) → must match Evidence.file_hash  ✓
+  4. Display in dashboard only (never send raw file to browser)

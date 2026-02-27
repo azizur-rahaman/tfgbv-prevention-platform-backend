@@ -22,6 +22,9 @@ AWS_S3_ENDPOINT_URL=http://localhost:9000
 AWS_S3_REGION_NAME=us-east-1
 
 
+### get hash
+python -c "import os; print(os.urandom(32).hex())"
+
 ### django cmd's ->
 # 1. Delete old database
 del db.sqlite3
@@ -44,3 +47,18 @@ python manage.py createsuperuser --settings=core.settings.local
 python manage.py runserver --settings=core.settings.local
 
 
+### After migrations seed the genesis block (only once)
+python manage.py shell --settings=core.settings.local
+-> Inside the shell:
+from apps.blockchain.models import ForensicLog
+from django.utils import timezone
+
+ForensicLog.objects.create(
+    event_type=ForensicLog.EventType.GENESIS,
+    notes="Nirvhoy system genesis block. Chain of custody begins here.",
+    timestamp=timezone.now(),
+    # block_number, previous_hash, block_hash are all auto-computed in .save()
+)
+
+print("Genesis block created:", ForensicLog.objects.get(block_number=0))
+exit()
