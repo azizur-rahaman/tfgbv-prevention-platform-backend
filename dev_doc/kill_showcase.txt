@@ -1,0 +1,70 @@
+step-0:
+python manage.py shell --settings=core.settings.local
+
+step-1:
+from apps.accounts.models import User
+
+police = User.objects.create_user(
+    username="officer_rahim",
+    password="police123",
+    role=User.UserRole.POLICE,
+    police_badge_id="PCSW-001",
+    assigned_upazila="Dhaka Sadar",
+)
+print("Police user created:", police.username)
+exit()
+```
+
+Step 2 — Login as police in Postman:
+```
+POST http://127.0.0.1:8000/api/v1/auth/login/
+{
+    "username": "officer_rahim",
+    "password": "police123"
+}
+```
+
+Step 3 — Verify full chain (should be GREEN):**
+```
+GET http://127.0.0.1:8000/api/v1/blockchain/verify/
+Authorization: Bearer <police_access_token>
+
+----> Expected response:
+json{
+    "chain_status": "INTACT",
+    "is_intact": true,
+    "total_blocks": 3
+}
+
+
+-----------> show Red (Data tempered)
+step-0: 
+python manage.py shell --settings=core.settings.local
+
+step-1:
+from apps.blockchain.models import ForensicLog
+
+# Manually tamper with block #1
+block = ForensicLog.objects.get(block_number=1)
+block.evidence_hash_snapshot = "TAMPERED_HASH_000000000000000000000000000"
+# Save directly to DB bypassing our custom .save() method
+ForensicLog.objects.filter(pk=block.pk).update(
+    evidence_hash_snapshot="TAMPERED_HASH_000000000000000000000000000"
+)
+print("Block tampered.")
+exit()
+```
+
+Step 2 — Verify again (should be RED):
+```
+GET http://127.0.0.1:8000/api/v1/blockchain/verify/
+Authorization: Bearer <police_access_token>
+```
+
+----> Expected response:
+json{
+    "chain_status": "COMPROMISED",
+    "is_intact": false,
+    "broken_at_block": 1,
+    "error": "Block #1 hash mismatch. Data was tampered..."
+}
