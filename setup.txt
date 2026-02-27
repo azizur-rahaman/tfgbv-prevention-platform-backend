@@ -1,0 +1,46 @@
+### MinIO setup (BCC Cloud Simulation) -> BCC National Data Center Storage
+docker run -p 9000:9000 -p 9001:9001 -e "MINIO_ROOT_USER=admin" -e "MINIO_ROOT_PASSWORD=password123" quay.io/minio/minio server /data --console-address ":9001"
+
+
+### create vault -> nirvhoy-vault
+
+
+### /src/.env ->
+# Django Core
+DEBUG=True
+SECRET_KEY=hackathon_secret__key_999
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Database (Using SQLite for the Hackathon)
+DATABASE_URL=sqlite:///db.sqlite3
+
+# MinIO / BCC Storage (Manual setup from Step 1)
+AWS_ACCESS_KEY_ID=admin
+AWS_SECRET_ACCESS_KEY=password123
+AWS_STORAGE_BUCKET_NAME=nirvhoy-vault
+AWS_S3_ENDPOINT_URL=http://localhost:9000
+AWS_S3_REGION_NAME=us-east-1
+
+
+### django cmd's ->
+# 1. Delete old database
+del db.sqlite3
+
+# 2. Delete old migration files (keep __init__.py in each folder)
+# Delete: apps/accounts/migrations/0001_*.py (if exists)
+# Delete: apps/evidence/migrations/0001_*.py (if exists)
+# Delete: apps/blockchain/migrations/0001_*.py (if exists)
+
+# 3. Fresh migrations
+python manage.py makemigrations --settings=core.settings.local
+
+# 4. Apply
+python manage.py migrate --settings=core.settings.local
+
+# 5. Create superuser
+python manage.py createsuperuser --settings=core.settings.local
+
+# 6. Run server
+python manage.py runserver --settings=core.settings.local
+
+
