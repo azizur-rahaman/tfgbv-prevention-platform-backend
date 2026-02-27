@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | Evidence Cases{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Evidence Cases</h1>
+        <p class="text-sm mt-1" style="color: #94a3b8;">
+            {{ total_count }} total records
+        </p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card p-4 mb-6 flex flex-wrap gap-3">
+    <form method="get" class="flex flex-wrap gap-3 w-full">
+        <select name="status"
+                class="px-3 py-2 rounded text-sm"
+                style="background-color: #0f172a; border: 1px solid #334155; color: #e2e8f0;">
+            <option value="">All Status</option>
+            <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="verified" {% if request.GET.status == 'verified' %}selected{% endif %}>Verified</option>
+            <option value="flagged" {% if request.GET.status == 'flagged' %}selected{% endif %}>Flagged</option>
+            <option value="submitted" {% if request.GET.status == 'submitted' %}selected{% endif %}>Submitted</option>
+        </select>
+        <select name="harm_type"
+                class="px-3 py-2 rounded text-sm"
+                style="background-color: #0f172a; border: 1px solid #334155; color: #e2e8f0;">
+            <option value="">All Harm Types</option>
+            <option value="sextortion">Sextortion</option>
+            <option value="image_abuse">Image-Based Abuse</option>
+            <option value="doxxing">Doxxing</option>
+            <option value="cyberbullying">Cyberbullying</option>
+            <option value="harassment">Harassment</option>
+        </select>
+        <button type="submit"
+                class="px-4 py-2 rounded text-sm font-medium"
+                style="background-color: #1e40af; color: white;">
+            Filter
+        </button>
+        <a href="{% url 'dashboard-cases' %}"
+           class="px-4 py-2 rounded text-sm"
+           style="background-color: #334155; color: #e2e8f0;">
+            Clear
+        </a>
+    </form>
+</div>
+
+<!-- Cases Table -->
+<div class="card">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr style="border-bottom: 1px solid #334155;">
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">#</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Vault ID</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Type</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Harm</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Hash</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Status</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Captured</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in evidence_list %}
+                <tr style="border-bottom: 1px solid #1a2744;"
+                    class="hover:bg-slate-800 transition-colors">
+                    <td class="px-5 py-4 text-xs" style="color: #64748b;">
+                        {{ forloop.counter }}
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="hash-text" style="color: #93c5fd; font-size: 0.65rem;">
+                            {{ ev.vault_id }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-xs" style="color: #e2e8f0;">
+                        {{ ev.get_evidence_type_display }}
+                    </td>
+                    <td class="px-5 py-4 text-xs" style="color: #e2e8f0;">
+                        {{ ev.get_harm_type_display }}
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="hash-text" style="color: #4ade80; font-size: 0.6rem;">
+                            {{ ev.file_hash|truncatechars:20 }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="px-2 py-1 rounded text-xs font-medium
+                            {% if ev.status == 'verified' %}badge-verified
+                            {% elif ev.status == 'pending' %}badge-pending
+                            {% elif ev.status == 'flagged' %}badge-flagged
+                            {% else %}badge-submitted{% endif %}">
+                            {{ ev.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-xs" style="color: #94a3b8;">
+                        {{ ev.captured_at|date:"M d, Y" }}<br>
+                        {{ ev.captured_at|date:"H:i" }}
+                    </td>
+                    <td class="px-5 py-4">
+                        <a href="{% url 'dashboard-case-detail' ev.vault_id %}"
+                           class="text-xs px-3 py-1 rounded"
+                           style="background-color: #1e3a5f; color: #93c5fd;">
+                            Forensic View →
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="px-5 py-8 text-center text-sm"
+                        style="color: #64748b;">
+                        No evidence cases found matching filters.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

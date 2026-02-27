@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | Chain Integrity{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Blockchain Chain Integrity</h1>
+    <p class="text-sm mt-1" style="color: #94a3b8;">
+        Full cryptographic verification of all evidence blocks
+    </p>
+</div>
+
+<!-- Main Status -->
+<div class="card p-8 mb-6 text-center
+    {% if result.is_intact %}chain-intact{% else %}chain-broken{% endif %}">
+    <div class="text-6xl mb-4">
+        {% if result.is_intact %}✅{% else %}🚨{% endif %}
+    </div>
+    <h2 class="text-3xl font-bold mb-2
+        {% if result.is_intact %}" style="color:#22c55e;"
+        {% else %}" style="color:#ef4444;"{% endif %}>
+        {{ result.is_intact|yesno:"CHAIN INTACT,CHAIN COMPROMISED" }}
+    </h2>
+    <p class="text-sm mb-4" style="color: #94a3b8;">
+        {{ result.total_blocks }} blocks verified
+        {% if result.broken_at_block %}
+            | Tamper detected at Block #{{ result.broken_at_block }}
+        {% endif %}
+    </p>
+    {% if result.error %}
+    <div class="inline-block px-6 py-3 rounded text-sm"
+         style="background-color: #7f1d1d; color: #fca5a5;">
+        ⚠️ {{ result.error }}
+    </div>
+    {% endif %}
+    <div class="mt-4">
+        <a href="{% url 'dashboard-chain-verify' %}"
+           class="px-6 py-2 rounded text-sm font-medium"
+           style="background-color: #1e40af; color: white;">
+            🔄 Re-verify Chain
+        </a>
+    </div>
+</div>
+
+<!-- Block List -->
+<div class="card">
+    <div class="p-5" style="border-bottom: 1px solid #334155;">
+        <h2 class="font-semibold text-white">Block-by-Block Verification</h2>
+    </div>
+    <div class="divide-y" style="border-color: #1e293b;">
+        {% for block in result.blocks_checked %}
+        <div class="p-4 flex items-center justify-between
+            {% if not block.is_valid %}bg-red-950{% endif %}">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                     style="background-color: {% if block.is_valid %}#166534{% else %}#7f1d1d{% endif %};
+                            color: {% if block.is_valid %}#86efac{% else %}#fca5a5{% endif %};">
+                    {{ block.block_number }}
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-white">
+                        {{ block.event_type }}
+                        {% if block.block_number == 0 %}
+                            <span class="text-xs ml-2 px-2 py-0.5 rounded"
+                                  style="background-color: #1e3a5f; color: #93c5fd;">Genesis</span>
+                        {% endif %}
+                    </p>
+                    <p class="text-xs mt-0.5" style="color: #64748b;">{{ block.timestamp }}</p>
+                    <p class="hash-text text-xs mt-1" style="color: #4ade80;">
+                        {{ block.stored_hash|truncatechars:40 }}
+                    </p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="px-3 py-1 rounded text-xs font-bold
+                    {% if block.is_valid %}badge-verified{% else %}badge-flagged{% endif %}">
+                    {% if block.is_valid %}✓ VALID{% else %}✗ TAMPERED{% endif %}
+                </span>
+                {% if not block.hash_ok %}
+                <p class="text-xs mt-1" style="color: #ef4444;">Hash mismatch</p>
+                {% endif %}
+                {% if not block.previous_hash_ok %}
+                <p class="text-xs mt-1" style="color: #ef4444;">Chain link broken</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

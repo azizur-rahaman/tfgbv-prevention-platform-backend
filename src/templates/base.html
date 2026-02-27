@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Nirvhoy | নির্ভয়{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'nirvhoy': {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569',
+                            accent: '#3b82f6',
+                            danger: '#ef4444',
+                            success: '#22c55e',
+                            warning: '#f59e0b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; }
+        .sidebar-link:hover { background-color: #1e293b; }
+        .sidebar-link.active { background-color: #1e40af; border-left: 3px solid #3b82f6; }
+        .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 0.5rem; }
+        .badge-verified { background-color: #166534; color: #86efac; }
+        .badge-pending { background-color: #713f12; color: #fde68a; }
+        .badge-flagged { background-color: #7f1d1d; color: #fca5a5; }
+        .badge-submitted { background-color: #1e3a5f; color: #93c5fd; }
+        .chain-intact { border-left: 4px solid #22c55e; }
+        .chain-broken { border-left: 4px solid #ef4444; }
+        .hash-text { font-family: 'Courier New', monospace; font-size: 0.7rem; word-break: break-all; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen">
+
+    <!-- Top Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3"
+         style="background-color: #1e293b; border-bottom: 1px solid #334155;">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                 style="background-color: #1e40af;">
+                <span class="text-white font-bold text-sm">ন</span>
+            </div>
+            <div>
+                <span class="font-bold text-white text-lg">Nirvhoy</span>
+                <span class="text-xs ml-2" style="color: #94a3b8;">নির্ভয় | Police Dashboard</span>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="text-sm" style="color: #94a3b8;">
+                {% if user.is_authenticated %}
+                    {{ user.get_role_display }} |
+                    <span class="text-white font-medium">{{ user.username }}</span>
+                {% endif %}
+            </span>
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard-logout' %}"
+               class="px-3 py-1 text-sm rounded"
+               style="background-color: #7f1d1d; color: #fca5a5;">
+                Logout
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="flex pt-14">
+        <!-- Sidebar -->
+        {% if user.is_authenticated %}
+        <aside class="fixed left-0 top-14 bottom-0 w-56 overflow-y-auto"
+               style="background-color: #1e293b; border-right: 1px solid #334155;">
+            <nav class="p-3 space-y-1">
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2"
+                   style="color: #64748b;">Main</p>
+
+                <a href="{% url 'dashboard-home' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm
+                          {% if request.resolver_match.url_name == 'dashboard-home' %}active{% endif %}">
+                    <span>🏠</span><span>Overview</span>
+                </a>
+
+                <a href="{% url 'dashboard-cases' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm
+                          {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <span>📁</span><span>Evidence Cases</span>
+                </a>
+
+                <a href="{% url 'dashboard-chain-verify' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm
+                          {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
+                    <span>🔗</span><span>Chain Integrity</span>
+                </a>
+
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4"
+                   style="color: #64748b;">Legal</p>
+
+                <a href="{% url 'dashboard-certificates' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm
+                          {% if request.resolver_match.url_name == 'dashboard-certificates' %}active{% endif %}">
+                    <span>📜</span><span>65B Certificates</span>
+                </a>
+            </nav>
+        </aside>
+        {% endif %}
+
+        <!-- Main Content -->
+        <main class="{% if user.is_authenticated %}ml-56{% endif %} flex-1 p-6 min-h-screen">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="mb-4 px-4 py-3 rounded text-sm
+                    {% if message.tags == 'error' %}
+                        style='background-color:#7f1d1d; color:#fca5a5;'
+                    {% else %}
+                        style='background-color:#166534; color:#86efac;'
+                    {% endif %}"
+                    style="{% if message.tags == 'error' %}background-color:#7f1d1d; color:#fca5a5;{% else %}background-color:#166534; color:#86efac;{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

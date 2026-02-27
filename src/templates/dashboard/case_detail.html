@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | Case {{ evidence.vault_id }}{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <a href="{% url 'dashboard-cases' %}"
+           class="text-sm mb-2 inline-block" style="color: #60a5fa;">
+            ← Back to Cases
+        </a>
+        <h1 class="text-xl font-bold text-white">Forensic Dossier</h1>
+        <p class="hash-text mt-1" style="color: #64748b;">{{ evidence.vault_id }}</p>
+    </div>
+    <div class="flex gap-3">
+        <a href="{% url 'dashboard-certificate' evidence.vault_id %}"
+           class="px-4 py-2 rounded text-sm font-medium"
+           style="background-color: #1e3a5f; color: #93c5fd;">
+            📜 Export 65B Certificate
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left Column: Evidence Details -->
+    <div class="lg:col-span-2 space-y-6">
+
+        <!-- Integrity Status -->
+        <div class="card p-5 {% if chain_result.is_intact %}chain-intact{% else %}chain-broken{% endif %}">
+            <div class="flex items-center space-x-4">
+                <span class="text-4xl">
+                    {% if chain_result.is_intact %}✅{% else %}🚨{% endif %}
+                </span>
+                <div>
+                    <p class="font-bold text-lg
+                        {% if chain_result.is_intact %}" style="color:#22c55e;"
+                        {% else %}" style="color:#ef4444;"{% endif %}>
+                        CHAIN OF CUSTODY:
+                        {% if chain_result.is_intact %}INTACT{% else %}COMPROMISED{% endif %}
+                    </p>
+                    <p class="text-xs mt-1" style="color: #94a3b8;">
+                        {% if chain_result.is_intact %}
+                            All blockchain hashes verified. Evidence is admissible under Section 65B.
+                        {% else %}
+                            ⚠️ {{ chain_result.error }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHA-256 Fingerprint -->
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4"
+                style="color: #64748b;">SHA-256 Cryptographic Fingerprint</h3>
+            <div class="p-4 rounded" style="background-color: #0f172a;">
+                <p class="hash-text text-sm" style="color: #4ade80;">
+                    {{ evidence.file_hash }}
+                </p>
+            </div>
+            <p class="text-xs mt-2" style="color: #64748b;">
+                Generated on mobile device at point of capture. Immutable.
+            </p>
+        </div>
+
+        <!-- Metadata -->
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4"
+                style="color: #64748b;">Evidence Metadata — Section 65B Record</h3>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">Evidence Type</p>
+                    <p class="text-white font-medium">{{ evidence.get_evidence_type_display }}</p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">Harm Classification</p>
+                    <p class="text-white font-medium">{{ evidence.get_harm_type_display }}</p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">Captured At (NTP)</p>
+                    <p class="text-white font-medium">{{ evidence.captured_at|date:"N j, Y, P" }}</p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">Uploaded to Vault</p>
+                    <p class="text-white font-medium">{{ evidence.uploaded_at|date:"N j, Y, P" }}</p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">GPS Coordinates</p>
+                    <p class="text-white font-medium">
+                        {% if evidence.latitude %}
+                            {{ evidence.latitude }}, {{ evidence.longitude }}
+                        {% else %}
+                            Not recorded
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">Device ID</p>
+                    <p class="text-white font-medium">
+                        {{ evidence.device_id|default:"Not recorded" }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">Original Size</p>
+                    <p class="text-white font-medium">
+                        {% if evidence.original_size_bytes %}
+                            {{ evidence.original_size_bytes|filesizeformat }}
+                        {% else %}N/A{% endif %}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">Stored Size (Encrypted)</p>
+                    <p class="text-white font-medium">
+                        {% if evidence.stored_size_bytes %}
+                            {{ evidence.stored_size_bytes|filesizeformat }}
+                        {% else %}N/A{% endif %}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">Encryption</p>
+                    <p style="color: #4ade80;" class="font-medium">
+                        {% if evidence.is_encrypted %}AES-256-GCM ✓{% else %}Not encrypted{% endif %}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1" style="color: #64748b;">MIME Type</p>
+                    <p class="text-white font-medium">
+                        {{ evidence.file_mime_type|default:"Unknown" }}
+                    </p>
+                </div>
+            </div>
+            {% if evidence.description %}
+            <div class="mt-4 pt-4" style="border-top: 1px solid #334155;">
+                <p class="text-xs mb-1" style="color: #64748b;">Victim Statement</p>
+                <p class="text-sm text-white">{{ evidence.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Blockchain Audit Trail -->
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4"
+                style="color: #64748b;">Blockchain Audit Trail</h3>
+            <div class="space-y-3">
+                {% for block in chain_result.blocks %}
+                <div class="flex items-start space-x-3 p-3 rounded
+                    {% if block.is_valid %}chain-intact{% else %}chain-broken{% endif %}"
+                    style="background-color: #0f172a;">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                         style="background-color: #1e293b; color: #94a3b8;">
+                        {{ block.block_number }}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-white">
+                                {{ block.event_type }}
+                            </p>
+                            <span class="text-xs px-2 py-0.5 rounded
+                                {% if block.is_valid %}badge-verified{% else %}badge-flagged{% endif %}">
+                                {% if block.is_valid %}✓ Valid{% else %}✗ Tampered{% endif %}
+                            </span>
+                        </div>
+                        <p class="text-xs mt-1" style="color: #64748b;">
+                            {{ block.timestamp }}
+                        </p>
+                        {% if block.notes %}
+                        <p class="text-xs mt-1" style="color: #94a3b8;">{{ block.notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Reporter Info & Status -->
+    <div class="space-y-6">
+
+        <!-- Status Badge -->
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4"
+                style="color: #64748b;">Case Status</h3>
+            <span class="px-4 py-2 rounded text-sm font-bold
+                {% if evidence.status == 'verified' %}badge-verified
+                {% elif evidence.status == 'pending' %}badge-pending
+                {% elif evidence.status == 'flagged' %}badge-flagged
+                {% else %}badge-submitted{% endif %}">
+                {{ evidence.get_status_display }}
+            </span>
+        </div>
+
+        <!-- Reporter Info -->
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4"
+                style="color: #64748b;">Reporter Identity</h3>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <p class="text-xs" style="color: #64748b;">Username</p>
+                    <p class="text-white font-medium">{{ evidence.reporter.username }}</p>
+                </div>
+                <div>
+                    <p class="text-xs" style="color: #64748b;">NID Hash (SHA-256)</p>
+                    <p class="hash-text text-xs" style="color: #4ade80;">
+                        {{ evidence.reporter.nid_hash|default:"Not verified" }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs" style="color: #64748b;">NID Verified</p>
+                    <p class="font-medium {% if evidence.reporter.nid_verified %}text-green-400{% else %}text-yellow-400{% endif %}">
+                        {% if evidence.reporter.nid_verified %}✓ Verified{% else %}⚠ Pending{% endif %}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs" style="color: #64748b;">Phone</p>
+                    <p class="text-white">{{ evidence.reporter.phone_number|default:"Not provided" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage Info -->
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4"
+                style="color: #64748b;">BCC Vault Storage</h3>
+            <div class="space-y-2 text-xs">
+                <div>
+                    <p style="color: #64748b;">Storage Path</p>
+                    <p class="hash-text mt-1" style="color: #93c5fd;">
+                        {{ evidence.storage_path }}
+                    </p>
+                </div>
+                <div class="mt-3">
+                    <p style="color: #64748b;">Encryption Status</p>
+                    <p class="mt-1 font-medium" style="color: #4ade80;">
+                        🔒 AES-256-GCM Encrypted
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

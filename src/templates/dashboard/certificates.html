@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | 65B Certificates{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Section 65B Certificates</h1>
+    <p class="text-sm mt-1" style="color: #94a3b8;">
+        Court-ready digital evidence certificates under Bangladesh Evidence Act 2022
+    </p>
+</div>
+
+<div class="card">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr style="border-bottom: 1px solid #334155;">
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Vault ID</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Harm Type</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Chain Status</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Uploaded</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Certificate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in evidence_list %}
+                <tr style="border-bottom: 1px solid #1a2744;">
+                    <td class="px-5 py-4">
+                        <span class="hash-text text-xs" style="color: #93c5fd;">
+                            {{ ev.vault_id|stringformat:"s"|truncatechars:20 }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-xs" style="color: #e2e8f0;">
+                        {{ ev.get_harm_type_display }}
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="px-2 py-1 rounded text-xs badge-verified">✓ Intact</span>
+                    </td>
+                    <td class="px-5 py-4 text-xs" style="color: #94a3b8;">
+                        {{ ev.uploaded_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-5 py-4">
+                        <a href="{% url 'dashboard-certificate' ev.vault_id %}"
+                           class="text-xs px-3 py-1 rounded inline-block"
+                           style="background-color: #166534; color: #86efac;">
+                            📜 Generate PDF
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-5 py-8 text-center text-sm"
+                        style="color: #64748b;">
+                        No verified evidence available for certificates.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -21,6 +21,8 @@ AWS_STORAGE_BUCKET_NAME=nirvhoy-vault
 AWS_S3_ENDPOINT_URL=http://localhost:9000
 AWS_S3_REGION_NAME=us-east-1
 
+### set env variable
+$env:DJANGO_SETTINGS_MODULE = "core.settings.local"
 
 ### get hash
 python -c "import os; print(os.urandom(32).hex())"
