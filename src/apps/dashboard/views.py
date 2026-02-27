@@ -325,4 +325,51 @@ class UserDetailView(View):
 
         elif action == "change_role":
             new_role = request.POST.get("role")
-            valid_roles = [r[0] for r in User.UserRole.ch
+            valid_roles = [r[0] for r in User.UserRole.choices]
+            if new_role in valid_roles:
+                target_user.role = new_role
+                target_user.save()
+
+        return redirect("dashboard:user_detail", user_id=user_id)
+
+
+# ------------------------------------------------------------------ #
+# SYSTEM HEALTH — BCC Admin only
+# ------------------------------------------------------------------ #
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+@method_decorator(role_required(*BCC_ONLY), name="dispatch")
+class SystemHealthView(View):
+    def get(self, request):
+        chain_result = verify_chain_integrity()
+
+        # Evidence stats
+        total_evidence = Evidence.objects.count()
+        encrypted_count = Evidence.objects.filter(is_encrypted=True).count()
+        verified_count = Evidence.objects.filter(is_hash_verified=True).count()
+
+        # User stats
+        total_users = User.objects.count()
+        active_users = User.objects.filter(is_active=True).count()
+        nid_verified = User.objects.filter(nid_verified=True).count()
+
+        # Storage stats
+        from django.db.models import Sum
+        storage_used = Evidence.objects.aggregate(
+            total=Sum("stored_size_bytes")
+        )["total"] or 0
+
+        context = {
+            "chain_intact": chain_result["is_intact"],
+            "total_blocks": chain_result["total_blocks"],
+            "chain_error": chain_result["error"],
+            "total_evidence": total_evidence,
+            "encrypted_count": encrypted_count,
+            "verified_count": verified_count,
+            "total_users": total_users,
+            "active_users": active_users,
+            "nid_verified": nid_verified,
+            "storage_used_bytes": storage_used,
+            "officer": request.user,
+        }
+        return render(request, "dashboard/system_health.html", context)
