@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "apps.dashboard",
     # Third-party
     "storages",
+    "rest_framework",
+    "rest_framework_simplejwt",
 ]
 
 # ------------------------------------------------------------------ #
@@ -129,3 +131,29 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Evidence encryption key (AES-256-GCM master key)
 EVIDENCE_ENCRYPTION_KEY = env("EVIDENCE_ENCRYPTION_KEY")
+
+# ------------------------------------------------------------------ #
+# DJANGO REST FRAMEWORK
+# ------------------------------------------------------------------ #
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+    ),
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=12),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ALGORITHM": "HS256",
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+APPEND_SLASH = False

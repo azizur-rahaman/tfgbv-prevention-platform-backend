@@ -1,0 +1,62 @@
+### Test with Postman
+
+**Register:**
+```
+POST http://127.0.0.1:8000/api/v1/auth/register/
+Body (JSON):
+{
+    "username": "test_victim",
+    "password": "testpass123",
+    "phone_number": "+8801700000000",
+    "nid_number": "1234567890123"
+}
+```
+----> sample response:
+{"success":true,"message":"Account created. NID verification pending.","access":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyMjY4NTMyLCJpYXQiOjE3NzIyMjUzMzIsImp0aSI6IjcxOGFmZGIxYTM3ZDRiOTI5MjY0N2FiMzJhMTZlZGY4IiwidXNlcl9pZCI6Ijc4NzBjMGYzLTExOGItNDViMC05OWVhLWZiMjU1NTU4M2M4YSJ9.wJwBaQOyNnFp9lKcBsp15IwzJL5O78Z2adNMjibVT8M","refresh":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MjgzMDEzMiwiaWF0IjoxNzcyMjI1MzMyLCJqdGkiOiIzZDU1NGIzOWQzYjc0N2VjYTY3OTk5MWY3N2JjMjA2ZiIsInVzZXJfaWQiOiI3ODcwYzBmMy0xMThiLTQ1YjAtOTllYS1mYjI1NTU1ODNjOGEifQ.4BqY7JsFkhdqwau5tt9hDXGOgybUhplZC2VnY7_3miY","user":{"id":"7870c0f3-118b-45b0-99ea-fb2555583c8a","username":"test_victim","role":"victim"}}
+
+**Login:**
+```
+POST http://127.0.0.1:8000/api/v1/auth/login/
+Body (JSON):
+{
+    "username": "test_victim",
+    "password": "testpass123"
+}
+```
+
+----> sample response:
+{
+    "success": true,
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyMjY4Njc2LCJpYXQiOjE3NzIyMjU0NzYsImp0aSI6ImQwZWU0MzFhYmNlNzRhOWQ4ZDYyMGJmNjA2ZGZmYWUwIiwidXNlcl9pZCI6Ijc4NzBjMGYzLTExOGItNDViMC05OWVhLWZiMjU1NTU4M2M4YSJ9._wmcbvouYHlmH1mXSdRLeg6jcF-uZ_HJedrt3H9ngYo",
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MjgzMDI3NiwiaWF0IjoxNzcyMjI1NDc2LCJqdGkiOiI1ZGVlYjZkMzY1MmQ0NDZjYjgyZjdjZGQwNzMxZWMxZiIsInVzZXJfaWQiOiI3ODcwYzBmMy0xMThiLTQ1YjAtOTllYS1mYjI1NTU1ODNjOGEifQ.SIJZkl9x6Qj5IzSNtPc5AspdchyUzVm6rgzI-HyS5_A",
+    "user": {
+        "id": "7870c0f3-118b-45b0-99ea-fb2555583c8a",
+        "username": "test_victim",
+        "role": "victim",
+        "nid_verified": false
+    }
+}
+
+**Upload Evidence:**
+-> add the access token from login response to auth as Bearer token !
+```
+POST http://127.0.0.1:8000/api/v1/evidence/upload/
+Header: Authorization: Bearer <access_token_from_login>
+Body (form-data):
+  file        → select any image file
+  file_hash   → SHA-256 of that file (use online tool for testing)
+  captured_at → 2025-01-28T10:30:00+06:00
+  evidence_type → photo
+  harm_type   → harassment
+  file_mime_type → image/jpeg
+```
+
+--> sample response:
+{
+    "success": true,
+    "message": "Evidence sealed in vault.",
+    "vault_id": "7c24aa08-6899-4639-8fc2-8d71e2b1ddde",
+    "file_hash": "3282bb69beece58ca8a36dc96f0f9a55a40f2f41dcfb67098dd5d9e3c1ff3396",
+    "block_number": 2,
+    "status": "verified"
+}
