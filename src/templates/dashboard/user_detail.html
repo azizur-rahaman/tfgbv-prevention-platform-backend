@@ -1,0 +1,156 @@
+{% extends "dashboard/base.html" %}
+{% block title %}User Detail{% endblock %}
+{% block content %}
+
+<div class="mb-6 flex items-center gap-3">
+    <a href="/dashboard/users/" class="text-gray-400 hover:text-white text-sm">← Users</a>
+    <span class="text-gray-600">/</span>
+    <span class="text-gray-300 text-sm">{{ target_user.username }}</span>
+</div>
+
+<div class="grid grid-cols-2 gap-6">
+
+    <!-- User Profile -->
+    <div class="space-y-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-14 h-14 bg-green-800 rounded-2xl flex items-center justify-center">
+                    <span class="text-white text-2xl font-bold">
+                        {{ target_user.username|first|upper }}
+                    </span>
+                </div>
+                <div>
+                    <h2 class="text-white text-xl font-bold">{{ target_user.username }}</h2>
+                    <p class="text-gray-400 text-sm">{{ target_user.get_role_display }}</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-500 text-xs uppercase tracking-wider">User ID</p>
+                        <p class="text-gray-300 font-mono text-xs mt-1 break-all">{{ target_user.id }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs uppercase tracking-wider">Phone</p>
+                        <p class="text-gray-300 text-sm mt-1">{{ target_user.phone_number|default:"—" }}</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-xs uppercase tracking-wider">NID Hash</p>
+                    <p class="text-gray-400 font-mono text-xs mt-1 break-all">
+                        {{ target_user.nid_hash|default:"Not set" }}
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-500 text-xs uppercase tracking-wider">NID Verified</p>
+                        {% if target_user.nid_verified %}
+                        <span class="text-green-400 text-sm">✓ Yes</span>
+                        {% else %}
+                        <span class="text-yellow-400 text-sm">Pending</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs uppercase tracking-wider">Joined</p>
+                        <p class="text-gray-300 text-sm mt-1">{{ target_user.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                {% if target_user.police_badge_id %}
+                <div>
+                    <p class="text-gray-500 text-xs uppercase tracking-wider">Badge ID</p>
+                    <p class="text-gray-300 text-sm mt-1">{{ target_user.police_badge_id }}</p>
+                </div>
+                {% endif %}
+                {% if target_user.assigned_upazila %}
+                <div>
+                    <p class="text-gray-500 text-xs uppercase tracking-wider">Assigned Upazila</p>
+                    <p class="text-gray-300 text-sm mt-1">{{ target_user.assigned_upazila }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
+            <h3 class="text-white font-semibold">Admin Actions</h3>
+
+            <!-- Toggle Active -->
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="toggle_active">
+                <button type="submit"
+                    class="w-full {% if target_user.is_active %}bg-red-900/50 hover:bg-red-900 text-red-400 border border-red-800{% else %}bg-green-900/50 hover:bg-green-900 text-green-400 border border-green-800{% endif %} py-2 rounded-lg text-sm font-medium transition">
+                    {% if target_user.is_active %}Suspend Account{% else %}Reactivate Account{% endif %}
+                </button>
+            </form>
+
+            <!-- Change Role -->
+            <form method="POST" class="flex gap-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="change_role">
+                <select name="role"
+                    class="flex-1 bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2 text-sm">
+                    {% for value, label in target_user.UserRole.choices %}
+                    <option value="{{ value }}"
+                        {% if target_user.role == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit"
+                    class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+                    Change Role
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- User's Evidence -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl">
+        <div class="px-6 py-4 border-b border-gray-800">
+            <h2 class="text-white font-semibold">
+                Evidence Submitted ({{ user_evidence.count }})
+            </h2>
+        </div>
+        <div class="overflow-y-auto max-h-96">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-800">
+                        <th class="px-4 py-3 text-left">Vault ID</th>
+                        <th class="px-4 py-3 text-left">Harm</th>
+                        <th class="px-4 py-3 text-left">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ev in user_evidence %}
+                    <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 cursor-pointer"
+                        onclick="window.location='/dashboard/evidence/{{ ev.vault_id }}/'">
+                        <td class="px-4 py-3 font-mono text-xs text-gray-300">
+                            {{ ev.vault_id|slice:":8" }}...
+                        </td>
+                        <td class="px-4 py-3 text-gray-400 text-xs">{{ ev.get_harm_type_display }}</td>
+                        <td class="px-4 py-3">
+                            {% if ev.status == "verified" %}
+                            <span class="bg-green-900/50 text-green-400 text-xs px-2 py-1 rounded-full">Verified</span>
+                            {% elif ev.status == "pending" %}
+                            <span class="bg-yellow-900/50 text-yellow-400 text-xs px-2 py-1 rounded-full">Pending</span>
+                            {% elif ev.status == "submitted" %}
+                            <span class="bg-blue-900/50 text-blue-400 text-xs px-2 py-1 rounded-full">In Court</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-4 py-8 text-center text-gray-500 text-sm">
+                            No evidence submitted.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

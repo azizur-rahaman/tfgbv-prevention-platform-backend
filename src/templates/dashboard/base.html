@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nirvhoy | {% block title %}Dashboard{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-56 bg-gray-900 border-r border-gray-800 min-h-screen flex flex-col fixed left-0 top-0">
+        <!-- Logo -->
+        <div class="px-6 py-5 border-b border-gray-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">ন</span>
+                </div>
+                <div>
+                    <p class="text-white font-bold text-sm">Nirvhoy</p>
+                    <p class="text-gray-500 text-xs">নির্ভয়</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 py-4 space-y-1">
+
+            <!-- All roles -->
+            <a href="/dashboard/"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white text-sm">
+                <span>⊞</span> Overview
+            </a>
+
+            <a href="/dashboard/evidence/"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white text-sm">
+                <span>🗄</span> Evidence Vault
+            </a>
+
+            <!-- Police + Forensic + BCC -->
+            {% if officer.role != "judiciary" %}
+            <a href="/dashboard/chain/"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white text-sm">
+                <span>⛓</span> Chain Integrity
+            </a>
+            {% endif %}
+
+            <!-- BCC Admin only -->
+            {% if officer.role == "bcc_admin" %}
+            <div class="pt-3 pb-1">
+                <p class="text-gray-600 text-xs uppercase tracking-wider px-3">Admin</p>
+            </div>
+            <a href="/dashboard/users/"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white text-sm">
+                <span>👥</span> User Management
+            </a>
+            <a href="/dashboard/system/"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white text-sm">
+                <span>⚙</span> System Health
+            </a>
+            {% endif %}
+
+        </nav>
+
+        <!-- User Info -->
+        <div class="px-4 py-4 border-t border-gray-800">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 bg-green-800 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="text-white text-xs font-bold">
+                        {{ officer.username|first|upper }}
+                    </span>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-white text-xs font-medium truncate">{{ officer.username }}</p>
+                    <p class="text-gray-500 text-xs">{{ officer.get_role_display }}</p>
+                </div>
+            </div>
+            <!-- Role Badge -->
+            {% if officer.role == "bcc_admin" %}
+            <span class="bg-purple-900/50 text-purple-400 text-xs px-2 py-0.5 rounded-full">BCC Admin</span>
+            {% elif officer.role == "forensic_analyst" %}
+            <span class="bg-blue-900/50 text-blue-400 text-xs px-2 py-0.5 rounded-full">Forensic Analyst</span>
+            {% elif officer.role == "police" %}
+            <span class="bg-green-900/50 text-green-400 text-xs px-2 py-0.5 rounded-full">Police Officer</span>
+            {% elif officer.role == "judiciary" %}
+            <span class="bg-yellow-900/50 text-yellow-400 text-xs px-2 py-0.5 rounded-full">Judiciary</span>
+            {% endif %}
+            <a href="/dashboard/logout/"
+               class="block mt-3 text-gray-500 hover:text-red-400 text-xs">
+                → Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-56 flex-1 p-6 min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

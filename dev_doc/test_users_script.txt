@@ -1,0 +1,28 @@
+run -> python manage.py shell --settings=core.settings.local
+
+give ->
+from apps.accounts.models import User
+
+# Forensic Analyst
+User.objects.create_user(
+    username="analyst_sara",
+    password="analyst123",
+    role=User.UserRole.FORENSIC_ANALYST,
+)
+
+# BCC Admin
+User.objects.create_user(
+    username="bcc_admin",
+    password="bccadmin123",
+    role=User.UserRole.BCC_ADMIN,
+)
+
+# Judiciary
+User.objects.create_user(
+    username="magistrate_khan",
+    password="judiciary123",
+    role=User.UserRole.JUDICIARY,
+)
+
+print("All test users created.")
+exit()

@@ -1,0 +1,120 @@
+{% extends "dashboard/base.html" %}
+{% block title %}System Health{% endblock %}
+{% block content %}
+
+<div class="mb-6">
+    <h1 class="text-white text-2xl font-bold">System Health</h1>
+    <p class="text-gray-400 text-sm mt-1">BCC National Data Center — Infrastructure Status</p>
+</div>
+
+<!-- Chain Status Banner -->
+{% if chain_intact %}
+<div class="bg-green-900/30 border border-green-700 rounded-xl px-6 py-4 mb-6 flex items-center gap-3">
+    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+    <p class="text-green-400 font-semibold">
+        ✓ Blockchain Ledger Intact — {{ total_blocks }} blocks verified
+    </p>
+</div>
+{% else %}
+<div class="bg-red-900/30 border border-red-700 rounded-xl px-6 py-4 mb-6 flex items-center gap-3">
+    <div class="w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
+    <div>
+        <p class="text-red-400 font-semibold">⚠ Blockchain Integrity Compromised</p>
+        <p class="text-red-600 text-xs mt-1">{{ chain_error }}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+        <p class="text-gray-400 text-xs uppercase tracking-wider">Evidence Records</p>
+        <p class="text-white text-3xl font-bold mt-2">{{ total_evidence }}</p>
+        <div class="mt-3 space-y-1">
+            <div class="flex justify-between text-xs">
+                <span class="text-gray-500">Encrypted</span>
+                <span class="text-green-400">{{ encrypted_count }}</span>
+            </div>
+            <div class="flex justify-between text-xs">
+                <span class="text-gray-500">Hash Verified</span>
+                <span class="text-green-400">{{ verified_count }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+        <p class="text-gray-400 text-xs uppercase tracking-wider">Users</p>
+        <p class="text-white text-3xl font-bold mt-2">{{ total_users }}</p>
+        <div class="mt-3 space-y-1">
+            <div class="flex justify-between text-xs">
+                <span class="text-gray-500">Active</span>
+                <span class="text-green-400">{{ active_users }}</span>
+            </div>
+            <div class="flex justify-between text-xs">
+                <span class="text-gray-500">NID Verified</span>
+                <span class="text-green-400">{{ nid_verified }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+        <p class="text-gray-400 text-xs uppercase tracking-wider">Storage Used</p>
+        <p class="text-white text-3xl font-bold mt-2">
+            {{ storage_used_bytes|filesizeformat }}
+        </p>
+        <div class="mt-3 space-y-1">
+            <div class="flex justify-between text-xs">
+                <span class="text-gray-500">Blockchain Blocks</span>
+                <span class="text-blue-400">{{ total_blocks }}</span>
+            </div>
+            <div class="flex justify-between text-xs">
+                <span class="text-gray-500">Hosting</span>
+                <span class="text-gray-400">BCC / MinIO</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Info -->
+<div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+    <h2 class="text-white font-semibold mb-4">System Configuration</h2>
+    <div class="grid grid-cols-2 gap-4 text-sm">
+        <div class="space-y-3">
+            <div class="flex justify-between py-2 border-b border-gray-800">
+                <span class="text-gray-400">Platform</span>
+                <span class="text-gray-200">Nirvhoy নির্ভয় v1.0</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-800">
+                <span class="text-gray-400">Legal Standard</span>
+                <span class="text-green-400">Section 65B — Evidence Act 2022</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-800">
+                <span class="text-gray-400">Encryption</span>
+                <span class="text-gray-200">AES-256-GCM</span>
+            </div>
+            <div class="flex justify-between py-2">
+                <span class="text-gray-400">Hashing</span>
+                <span class="text-gray-200">SHA-256</span>
+            </div>
+        </div>
+        <div class="space-y-3">
+            <div class="flex justify-between py-2 border-b border-gray-800">
+                <span class="text-gray-400">Storage</span>
+                <span class="text-gray-200">BCC National Data Center</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-800">
+                <span class="text-gray-400">Blockchain Type</span>
+                <span class="text-gray-200">Permissioned Chained Ledger</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-800">
+                <span class="text-gray-400">Identity</span>
+                <span class="text-gray-200">NIDW Partner API</span>
+            </div>
+            <div class="flex justify-between py-2">
+                <span class="text-gray-400">Compression</span>
+                <span class="text-gray-200">gzip level 9</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

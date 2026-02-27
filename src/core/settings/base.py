@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     "storages",
     "rest_framework",
     "rest_framework_simplejwt",
+    "crispy_forms",
+    "crispy_tailwind",
 ]
 
 # ------------------------------------------------------------------ #
@@ -157,3 +159,12 @@ SIMPLE_JWT = {
 }
 
 APPEND_SLASH = False
+
+# Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
+CRISPY_TEMPLATE_PACK = "tailwind"
+
+# Dashboard login redirect
+LOGIN_URL = "/dashboard/login/"
+LOGIN_REDIRECT_URL = "/dashboard/"
+LOGOUT_REDIRECT_URL = "/dashboard/login/"
