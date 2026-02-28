@@ -23,6 +23,7 @@ class ForensicLog(models.Model):
         VERIFICATION = "verification", "Hash Verified"
         TRANSFER = "transfer", "Transferred to Court"
         VERDICT = "verdict", "Verdict Recorded"
+        REPORT = "report", "Report Filed"
         GENESIS = "genesis", "Genesis Block"
 
     # ------------------------------------------------------------------ #
@@ -53,7 +54,7 @@ class ForensicLog(models.Model):
         default=EventType.CAPTURE,
     )
 
-    # The evidence this block is about (null only for genesis block)
+    # The evidence this block is about (null for genesis or report blocks)
     evidence = models.ForeignKey(
         "evidence.Evidence",
         on_delete=models.PROTECT,
@@ -61,6 +62,16 @@ class ForensicLog(models.Model):
         blank=True,
         related_name="blockchain_logs",
         help_text="The evidence record this block is sealing.",
+    )
+
+    # The report this block is about (for event_type=report)
+    report = models.ForeignKey(
+        "report.Report",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="blockchain_logs",
+        help_text="The incident report this block is sealing.",
     )
 
     # The file hash at the time this block was created

@@ -11,6 +11,7 @@ urlpatterns = [
     # Mobile App API
     path("api/v1/auth/", include("apps.accounts.api.urls")),
     path("api/v1/evidence/", include("apps.evidence.api.urls")),
+    path("api/v1/reports/", include("apps.report.api.urls")),
     path("api/v1/blockchain/", include("apps.blockchain.api.urls")),
     path("dashboard/", include("apps.dashboard.urls")),
 ]

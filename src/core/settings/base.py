@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.evidence",
     "apps.blockchain",
+    "apps.report",
     "apps.dashboard",
     # Third-party
     "storages",
