@@ -5,7 +5,11 @@
 <div class="mb-6">
     <h1 class="text-2xl font-bold text-white">Blockchain Chain Integrity</h1>
     <p class="text-sm mt-1" style="color: #94a3b8;">
-        Full cryptographic verification of all evidence blocks
+        {% if user.role == 'police' %}Verify evidence chain status before submission
+        {% elif user.role == 'forensic_analyst' %}Full cryptographic verification — use Chain Audit for block-by-block view
+        {% elif user.role == 'bcc_admin' %}System-wide chain status
+        {% elif user.role == 'judiciary' %}Read-only verification of custody chain
+        {% else %}Full cryptographic verification of all evidence blocks{% endif %}
     </p>
 </div>
 

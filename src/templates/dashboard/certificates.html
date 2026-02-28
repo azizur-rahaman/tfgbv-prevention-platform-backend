@@ -5,7 +5,9 @@
 <div class="mb-6">
     <h1 class="text-2xl font-bold text-white">Section 65B Certificates</h1>
     <p class="text-sm mt-1" style="color: #94a3b8;">
-        Court-ready digital evidence certificates under Bangladesh Evidence Act 2022
+        {% if user.role == 'police' %}Generate and download court-ready certificates for verified evidence
+        {% elif user.role == 'judiciary' %}View and download certificates for submitted cases
+        {% else %}Court-ready digital evidence certificates under Bangladesh Evidence Act 2022{% endif %}
     </p>
 </div>
 

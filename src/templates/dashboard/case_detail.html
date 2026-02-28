@@ -6,9 +6,11 @@
     <div>
         <a href="{% url 'dashboard-cases' %}"
            class="text-sm mb-2 inline-block" style="color: #60a5fa;">
-            ← Back to Cases
+            ← Back to {% if user.role == 'police' %}Case Inbox{% elif user.role == 'judiciary' %}Submitted Cases{% elif user.role == 'forensic_analyst' %}Evidence Cases{% else %}Cases{% endif %}
         </a>
-        <h1 class="text-xl font-bold text-white">Forensic Dossier</h1>
+        <h1 class="text-xl font-bold text-white">
+            {% if user.role == 'judiciary' %}Case Dossier{% else %}Forensic Dossier{% endif %}
+        </h1>
         <p class="hash-text mt-1" style="color: #64748b;">{{ evidence.vault_id }}</p>
     </div>
     <div class="flex gap-3 flex-wrap">
@@ -32,10 +34,22 @@
            style="background-color: #166534; color: #86efac;">
             🔬 Hash Re-verify
         </a>
+        <a href="{% url 'dashboard-forensic-integrity' evidence.vault_id %}"
+           class="px-4 py-2 rounded text-sm font-medium"
+           style="background-color: #334155; color: #e2e8f0;">
+            🔒 Encryption Integrity
+        </a>
         <a href="{% url 'dashboard-forensic-expert-pdf' evidence.vault_id %}"
            class="px-4 py-2 rounded text-sm font-medium"
            style="background-color: #334155; color: #e2e8f0;">
             📄 Expert Report PDF
+        </a>
+        {% endif %}
+        {% if user.role == 'judiciary' and evidence.status == 'submitted' %}
+        <a href="{% url 'dashboard-verdict' evidence.vault_id %}"
+           class="px-4 py-2 rounded text-sm font-medium"
+           style="background-color: #7c3aed; color: #e9d5ff;">
+            ⚖️ {% if evidence.verdict %}Update Disposition{% else %}Record Verdict{% endif %}
         </a>
         {% endif %}
     </div>

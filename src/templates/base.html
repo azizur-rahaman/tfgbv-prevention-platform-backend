@@ -52,7 +52,14 @@
             </div>
             <div>
                 <span class="font-bold text-white text-lg">Nirvhoy</span>
-                <span class="text-xs ml-2" style="color: #94a3b8;">নির্ভয় | Police Dashboard</span>
+                <span class="text-xs ml-2" style="color: #94a3b8;">
+                    নির্ভয় |
+                    {% if user.role == 'police' %}Police Dashboard
+                    {% elif user.role == 'forensic_analyst' %}Forensic Analyst
+                    {% elif user.role == 'bcc_admin' %}BCC Admin
+                    {% elif user.role == 'judiciary' %}Judiciary
+                    {% else %}Dashboard{% endif %}
+                </span>
             </div>
         </div>
         <div class="flex items-center space-x-4">
@@ -78,35 +85,115 @@
         <aside class="fixed left-0 top-14 bottom-0 w-56 overflow-y-auto"
                style="background-color: #1e293b; border-right: 1px solid #334155;">
             <nav class="p-3 space-y-1">
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2"
-                   style="color: #64748b;">Main</p>
 
-                <a href="{% url 'dashboard-home' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm
-                          {% if request.resolver_match.url_name == 'dashboard-home' or request.resolver_match.url_name == 'dashboard-police-home' or request.resolver_match.url_name == 'dashboard-forensic-home' or request.resolver_match.url_name == 'dashboard-bcc-home' or request.resolver_match.url_name == 'dashboard-judiciary-home' %}active{% endif %}">
+                {% if user.role == 'police' %}
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">Police</p>
+                <a href="{% url 'dashboard-police-home' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-police-home' %}active{% endif %}">
                     <span>🏠</span><span>Overview</span>
                 </a>
-
                 <a href="{% url 'dashboard-cases' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm
-                          {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
-                    <span>📁</span><span>Evidence Cases</span>
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <span>📥</span><span>Case Inbox</span>
                 </a>
-
                 <a href="{% url 'dashboard-chain-verify' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm
-                          {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
                     <span>🔗</span><span>Chain Integrity</span>
                 </a>
-
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4"
-                   style="color: #64748b;">Legal</p>
-
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
                 <a href="{% url 'dashboard-certificates' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm
-                          {% if request.resolver_match.url_name == 'dashboard-certificates' %}active{% endif %}">
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
                     <span>📜</span><span>65B Certificates</span>
                 </a>
+
+                {% elif user.role == 'forensic_analyst' %}
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">Forensic</p>
+                <a href="{% url 'dashboard-forensic-home' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-home' %}active{% endif %}">
+                    <span>🏠</span><span>Overview</span>
+                </a>
+                <a href="{% url 'dashboard-forensic-flagged' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-flagged' %}active{% endif %}">
+                    <span>⚠️</span><span>Flagged Cases</span>
+                </a>
+                <a href="{% url 'dashboard-forensic-chain-audit' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-chain-audit' %}active{% endif %}">
+                    <span>🔗</span><span>Chain Audit</span>
+                </a>
+                <a href="{% url 'dashboard-forensic-tamper-log' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-tamper-log' %}active{% endif %}">
+                    <span>📋</span><span>Tamper Log</span>
+                </a>
+                <a href="{% url 'dashboard-cases' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <span>📁</span><span>Evidence Cases</span>
+                </a>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
+                <a href="{% url 'dashboard-certificates' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
+                    <span>📜</span><span>65B Certificates</span>
+                </a>
+
+                {% elif user.role == 'bcc_admin' %}
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">BCC Admin</p>
+                <a href="{% url 'dashboard-bcc-home' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-bcc-home' %}active{% endif %}">
+                    <span>🏠</span><span>Overview</span>
+                </a>
+                <a href="{% url 'dashboard-cases' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <span>📁</span><span>Evidence Cases</span>
+                </a>
+                <a href="{% url 'dashboard-chain-verify' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
+                    <span>🔗</span><span>Chain Integrity</span>
+                </a>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
+                <a href="{% url 'dashboard-certificates' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
+                    <span>📜</span><span>65B Certificates</span>
+                </a>
+
+                {% elif user.role == 'judiciary' %}
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">Judiciary</p>
+                <a href="{% url 'dashboard-judiciary-home' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-judiciary-home' %}active{% endif %}">
+                    <span>🏠</span><span>Overview</span>
+                </a>
+                <a href="{% url 'dashboard-cases' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <span>📁</span><span>Submitted Cases</span>
+                </a>
+                <a href="{% url 'dashboard-chain-verify' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
+                    <span>🔗</span><span>Chain Integrity</span>
+                </a>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
+                <a href="{% url 'dashboard-certificates' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
+                    <span>📜</span><span>65B Certificates</span>
+                </a>
+
+                {% else %}
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">Main</p>
+                <a href="{% url 'dashboard-home' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-home' or request.resolver_match.url_name == 'dashboard-police-home' or request.resolver_match.url_name == 'dashboard-forensic-home' or request.resolver_match.url_name == 'dashboard-bcc-home' or request.resolver_match.url_name == 'dashboard-judiciary-home' %}active{% endif %}">
+                    <span>🏠</span><span>Overview</span>
+                </a>
+                <a href="{% url 'dashboard-cases' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <span>📁</span><span>Evidence Cases</span>
+                </a>
+                <a href="{% url 'dashboard-chain-verify' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
+                    <span>🔗</span><span>Chain Integrity</span>
+                </a>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
+                <a href="{% url 'dashboard-certificates' %}"
+                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' %}active{% endif %}">
+                    <span>📜</span><span>65B Certificates</span>
+                </a>
+                {% endif %}
             </nav>
         </aside>
         {% endif %}

@@ -1,12 +1,21 @@
 {% extends 'base.html' %}
-{% block title %}Nirvhoy | Evidence Cases{% endblock %}
+{% block title %}Nirvhoy | {% if user.role == 'police' %}Case Inbox{% elif user.role == 'judiciary' %}Submitted Cases{% else %}Evidence Cases{% endif %}{% endblock %}
 
 {% block content %}
 <div class="flex items-center justify-between mb-6">
     <div>
-        <h1 class="text-2xl font-bold text-white">Evidence Cases</h1>
+        <h1 class="text-2xl font-bold text-white">
+            {% if user.role == 'police' %}Case Inbox
+            {% elif user.role == 'forensic_analyst' %}Evidence Cases
+            {% elif user.role == 'bcc_admin' %}Evidence Cases
+            {% elif user.role == 'judiciary' %}Submitted Cases
+            {% else %}Evidence Cases{% endif %}
+        </h1>
         <p class="text-sm mt-1" style="color: #94a3b8;">
-            {{ total_count }} total records
+            {% if user.role == 'police' %}Cases in your jurisdiction
+            {% elif user.role == 'judiciary' %}Cases submitted to court for disposition
+            {% else %}All evidence records you can access{% endif %}
+            — {{ total_count }} total
         </p>
     </div>
 </div>
@@ -110,7 +119,10 @@
                         <a href="{% url 'dashboard-case-detail' ev.vault_id %}"
                            class="text-xs px-3 py-1 rounded"
                            style="background-color: #1e3a5f; color: #93c5fd;">
-                            Forensic View →
+                            {% if user.role == 'police' %}View case →
+                            {% elif user.role == 'forensic_analyst' %}Forensic View →
+                            {% elif user.role == 'judiciary' %}View case →
+                            {% else %}View →{% endif %}
                         </a>
                     </td>
                 </tr>

@@ -203,6 +203,46 @@ class JudiciaryHomeView(View):
 
 
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+@method_decorator(role_required(User.UserRole.JUDICIARY), name="dispatch")
+class VerdictView(View):
+    """Record or update court disposition (Judiciary only). Writes ForensicLog VERDICT."""
+    def get(self, request, vault_id):
+        base_qs = Evidence.objects.filter(status=Evidence.EvidenceStatus.SUBMITTED)
+        allowed_qs = get_evidence_queryset_for_role(request.user, base_qs)
+        evidence = get_object_or_404(allowed_qs, vault_id=vault_id)
+        return render(request, "dashboard/judiciary/verdict.html", {
+            "evidence": evidence,
+            "verdict_choices": Evidence.VerdictStatus.choices,
+        })
+
+    def post(self, request, vault_id):
+        base_qs = Evidence.objects.filter(status=Evidence.EvidenceStatus.SUBMITTED)
+        allowed_qs = get_evidence_queryset_for_role(request.user, base_qs)
+        evidence = get_object_or_404(allowed_qs, vault_id=vault_id)
+        verdict = (request.POST.get("verdict") or "").strip()
+        if verdict not in dict(Evidence.VerdictStatus.choices):
+            return render(request, "dashboard/judiciary/verdict.html", {
+                "evidence": evidence,
+                "verdict_choices": Evidence.VerdictStatus.choices,
+                "error": "Invalid disposition. Select Admitted, Rejected, or Under Review.",
+            })
+        from django.utils import timezone
+        evidence.verdict = verdict
+        evidence.verdict_at = timezone.now()
+        evidence.verdict_by = request.user
+        evidence.save(update_fields=["verdict", "verdict_at", "verdict_by"])
+        ForensicLog.objects.create(
+            event_type=ForensicLog.EventType.VERDICT,
+            evidence=evidence,
+            evidence_hash_snapshot=evidence.file_hash,
+            actor_user_id=str(request.user.id),
+            actor_role=request.user.role,
+            notes=f"Disposition: {evidence.get_verdict_display()}. Recorded by {request.user.username}.",
+        )
+        return redirect("dashboard-case-detail", vault_id=vault_id)
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 @method_decorator(role_required(User.UserRole.POLICE), name="dispatch")
 class MarkForSubmissionView(View):
     """Mark evidence as submitted to court (Police only). POST only; adds ForensicLog TRANSFER (Phase 3)."""
@@ -278,7 +318,10 @@ class DashboardChainVerifyView(View):
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 class DashboardCertificatesView(View):
     def get(self, request):
-        base_qs = Evidence.objects.filter(status="verified").order_by("-uploaded_at")
+        # Police/Forensic/BCC see verified (and submitted); Judiciary sees only submitted
+        base_qs = Evidence.objects.filter(
+            status__in=[Evidence.EvidenceStatus.VERIFIED, Evidence.EvidenceStatus.SUBMITTED]
+        ).order_by("-uploaded_at")
         evidence_list = get_evidence_queryset_for_role(request.user, base_qs)
 
         return render(request, "dashboard/certificates.html", {
