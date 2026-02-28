@@ -189,10 +189,11 @@
             </span>
         </div>
 
-        <!-- Reporter Info -->
+        <!-- Reporter / Victim Identity (Police & BCC only — Phase 2.4) -->
+        {% if show_victim_identity %}
         <div class="card p-5">
             <h3 class="text-sm font-semibold uppercase tracking-wider mb-4"
-                style="color: #64748b;">Reporter Identity</h3>
+                style="color: #64748b;">Reporter Identity (Victim Lookup)</h3>
             <div class="space-y-3 text-sm">
                 <div>
                     <p class="text-xs" style="color: #64748b;">Username</p>
@@ -216,6 +217,13 @@
                 </div>
             </div>
         </div>
+        {% else %}
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4"
+                style="color: #64748b;">Reporter</h3>
+            <p class="text-sm text-white">Reported by authenticated user. Identity details restricted to Police/BCC.</p>
+        </div>
+        {% endif %}
 
         <!-- Storage Info -->
         <div class="card p-5">

@@ -136,6 +136,11 @@ class DashboardCasesView(View):
         })
 
 
+def _show_victim_identity(user):
+    """Victim identity (NID hash, verification) visible only to Police and BCC (Phase 2.4)."""
+    return user.role in (User.UserRole.POLICE, User.UserRole.BCC_ADMIN)
+
+
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 class DashboardCaseDetailView(View):
     def get(self, request, vault_id):
@@ -147,6 +152,7 @@ class DashboardCaseDetailView(View):
         return render(request, "dashboard/case_detail.html", {
             "evidence": evidence,
             "chain_result": chain_result,
+            "show_victim_identity": _show_victim_identity(request.user),
         })
 
 
@@ -172,13 +178,108 @@ class DashboardCertificatesView(View):
 
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 class DashboardCertificateView(View):
+    """65B certificate inline view (Phase 2.3)."""
     def get(self, request, vault_id):
         base_qs = Evidence.objects.all()
         allowed_qs = get_evidence_queryset_for_role(request.user, base_qs)
         evidence = get_object_or_404(allowed_qs, vault_id=vault_id)
         chain_result = verify_single_evidence_chain(str(vault_id))
-        # Part 3 will replace this with PDF generation
-        return render(request, "dashboard/case_detail.html", {
+        return render(request, "dashboard/certificate_view.html", {
             "evidence": evidence,
             "chain_result": chain_result,
         })
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+class DashboardCertificatePdfView(View):
+    """65B certificate PDF download (Phase 2.3)."""
+    def get(self, request, vault_id):
+        from django.http import HttpResponse
+        base_qs = Evidence.objects.all()
+        allowed_qs = get_evidence_queryset_for_role(request.user, base_qs)
+        evidence = get_object_or_404(allowed_qs, vault_id=vault_id)
+        chain_result = verify_single_evidence_chain(str(vault_id))
+        pdf_response = _build_certificate_pdf(evidence, chain_result)
+        if pdf_response is None:
+            return render(request, "dashboard/certificate_view.html", {
+                "evidence": evidence,
+                "chain_result": chain_result,
+                "pdf_error": "PDF generation unavailable. Install reportlab: pip install reportlab",
+            })
+        return pdf_response
+
+
+def _build_certificate_pdf(evidence, chain_result):
+    """Build 65B certificate PDF using ReportLab. Returns HttpResponse or None if reportlab missing."""
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import mm
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+        from reportlab.lib import colors
+        from io import BytesIO
+        from django.http import HttpResponse
+    except ImportError:
+        return None
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=20*mm, leftMargin=20*mm, topMargin=20*mm, bottomMargin=20*mm)
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        name="CertTitle",
+        parent=styles["Heading1"],
+        fontSize=14,
+        spaceAfter=6,
+        alignment=1,
+    )
+    heading_style = ParagraphStyle(
+        name="CertHeading",
+        parent=styles["Heading2"],
+        fontSize=10,
+        spaceAfter=4,
+        textColor=colors.HexColor("#64748b"),
+    )
+    body_style = styles["Normal"]
+    body_style.fontSize = 9
+    body_style.spaceAfter = 4
+
+    story = []
+    story.append(Paragraph("CERTIFICATE UNDER SECTION 65B", title_style))
+    story.append(Paragraph("Bangladesh Evidence Act 2022 — Electronic Evidence", body_style))
+    story.append(Spacer(1, 8*mm))
+
+    data = [
+        ["Vault ID (Evidence Reference)", str(evidence.vault_id)],
+        ["SHA-256 File Hash", evidence.file_hash],
+        ["Chain of Custody", "INTACT" if chain_result["is_intact"] else "COMPROMISED"],
+        ["Hash Verified", "Yes" if evidence.is_hash_verified else "Pending"],
+        ["Evidence Type", evidence.get_evidence_type_display()],
+        ["Harm Classification", evidence.get_harm_type_display()],
+        ["Captured At", evidence.captured_at.strftime("%B %d, %Y, %H:%M")],
+        ["Uploaded to Vault", evidence.uploaded_at.strftime("%B %d, %Y, %H:%M")],
+    ]
+    if evidence.verdict:
+        data.append(["Court Disposition", evidence.get_verdict_display()])
+    t = Table(data, colWidths=[60*mm, 100*mm])
+    t.setStyle(TableStyle([
+        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("TEXTCOLOR", (0, 0), (0, -1), colors.HexColor("#64748b")),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#1e293b")),
+    ]))
+    story.append(t)
+    story.append(Spacer(1, 8*mm))
+    story.append(Paragraph(
+        "This certificate attests to the integrity and chain of custody of the above digital evidence "
+        "as maintained by the Nirvhoy platform. The cryptographic hash and blockchain audit trail "
+        "support admissibility under Section 65B of the Bangladesh Evidence Act 2022.",
+        body_style
+    ))
+
+    doc.build(story)
+    buffer.seek(0)
+    response = HttpResponse(buffer.getvalue(), content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="65b-certificate-{evidence.vault_id}.pdf"'
+    return response

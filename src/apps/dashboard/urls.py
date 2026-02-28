@@ -13,6 +13,7 @@ from apps.dashboard.views import (
     DashboardChainVerifyView,
     DashboardCertificatesView,
     DashboardCertificateView,
+    DashboardCertificatePdfView,
 )
 
 urlpatterns = [
@@ -29,4 +30,5 @@ urlpatterns = [
     path("chain/", DashboardChainVerifyView.as_view(), name="dashboard-chain-verify"),
     path("certificates/", DashboardCertificatesView.as_view(), name="dashboard-certificates"),
     path("certificates/<uuid:vault_id>/", DashboardCertificateView.as_view(), name="dashboard-certificate"),
+    path("certificates/<uuid:vault_id>/pdf/", DashboardCertificatePdfView.as_view(), name="dashboard-certificate-pdf"),
 ]
