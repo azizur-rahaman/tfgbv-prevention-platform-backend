@@ -26,6 +26,18 @@
             </button>
         </form>
         {% endif %}
+        {% if user.role == 'forensic_analyst' %}
+        <a href="{% url 'dashboard-forensic-reverify' evidence.vault_id %}"
+           class="px-4 py-2 rounded text-sm font-medium"
+           style="background-color: #166534; color: #86efac;">
+            🔬 Hash Re-verify
+        </a>
+        <a href="{% url 'dashboard-forensic-expert-pdf' evidence.vault_id %}"
+           class="px-4 py-2 rounded text-sm font-medium"
+           style="background-color: #334155; color: #e2e8f0;">
+            📄 Expert Report PDF
+        </a>
+        {% endif %}
     </div>
 </div>
 

@@ -1,8 +1,12 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+
+    # Root -> dashboard (avoids 404 on GET /)
+    path("", RedirectView.as_view(url="/dashboard/", permanent=False)),
 
     # Mobile App API
     path("api/v1/auth/", include("apps.accounts.api.urls")),

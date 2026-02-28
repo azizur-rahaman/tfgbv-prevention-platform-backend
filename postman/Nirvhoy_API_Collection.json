@@ -1,0 +1,212 @@
+{
+  "info": {
+    "name": "Nirvhoy TFGBV Prevention API",
+    "description": "Full API testing for Nirvhoy backend: Auth, Evidence, Blockchain.\n\n**Setup:**\n1. Import this collection and the Nirvhoy_Environment.json.\n2. Select environment 'Nirvhoy Local'.\n3. Run server: `python manage.py runserver --settings=core.settings.local`\n4. Run **Auth: Login (victim)** or **Register** first to get tokens (saved to env automatically).\n5. For **Evidence Upload**: use a small image file and set `file_hash` to its SHA-256 (e.g. `certutil -hashfile file.jpg SHA256` on Windows, or online tool).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "access_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (victim)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.access) pm.environment.set('access_token', j.access);",
+                  "    if (j.refresh) pm.environment.set('refresh_token', j.refresh);",
+                  "    if (j.user && j.user.id) pm.environment.set('user_id', j.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"test_victim\",\n    \"password\": \"testpass123\",\n    \"phone_number\": \"+8801700000000\",\n    \"nid_number\": \"1234567890123\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/auth/register/",
+            "description": "Creates a victim user. NID is hashed server-side. Saves access_token and refresh_token to environment."
+          }
+        },
+        {
+          "name": "Login (victim)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.access) pm.environment.set('access_token', j.access);",
+                  "    if (j.refresh) pm.environment.set('refresh_token', j.refresh);",
+                  "    if (j.user && j.user.id) pm.environment.set('user_id', j.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"test_victim\",\n    \"password\": \"testpass123\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/auth/login/",
+            "description": "Login as victim. Saves access_token and refresh_token to environment."
+          }
+        },
+        {
+          "name": "Login (police)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.access) pm.environment.set('access_token', j.access);",
+                  "    if (j.refresh) pm.environment.set('refresh_token', j.refresh);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"police_officer\",\n    \"password\": \"police123\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/auth/login/",
+            "description": "Login as police. Create this user in Django admin first (role=police)."
+          }
+        },
+        {
+          "name": "Token Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.access) pm.environment.set('access_token', j.access);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/auth/token/refresh/",
+            "description": "Get new access token using refresh_token. Uses refresh_token from environment."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Evidence",
+      "item": [
+        {
+          "name": "Upload (multipart)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.vault_id) pm.environment.set('vault_id', j.vault_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [], "description": "Select an image file (e.g. small .jpg). file_hash MUST be SHA-256 of this file." },
+                { "key": "file_hash", "value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "description": "Replace with SHA-256 of the selected file (64 hex chars). Use certutil -hashfile file.jpg SHA256 (Windows) or sha256sum (Linux/Mac)." },
+                { "key": "captured_at", "value": "2025-02-28T10:30:00+06:00" },
+                { "key": "evidence_type", "value": "photo" },
+                { "key": "harm_type", "value": "harassment" },
+                { "key": "file_mime_type", "value": "image/jpeg" },
+                { "key": "description", "value": "Postman test upload", "disabled": false },
+                { "key": "assigned_upazila", "value": "Dhaka", "disabled": true }
+              ]
+            },
+            "url": "{{base_url}}/api/v1/evidence/upload/",
+            "description": "Upload evidence. **Important:** file_hash must match SHA-256 of the selected file or the server returns 400 HASH_MISMATCH. After success, vault_id is saved to environment."
+          }
+        },
+        {
+          "name": "Get Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/evidence/{{vault_id}}/status/",
+            "description": "Get status for one evidence (reporter only). Uses vault_id from environment (set by Upload or manually)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blockchain",
+      "item": [
+        {
+          "name": "Verify Chain (full)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/blockchain/verify/",
+            "description": "Full chain integrity. Allowed roles: police, forensic_analyst, bcc_admin, judiciary. Login as one of these first."
+          }
+        },
+        {
+          "name": "Get Evidence Chain",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/blockchain/evidence/{{vault_id}}/",
+            "description": "Chain for a single evidence. Uses vault_id from environment."
+          }
+        }
+      ]
+    }
+  ]
+}

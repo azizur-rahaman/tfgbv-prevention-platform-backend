@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | Encryption Integrity — {{ evidence.vault_id }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'dashboard-case-detail' evidence.vault_id %}" class="text-sm mb-2 inline-block" style="color: #60a5fa;">← Case Detail</a>
+    <h1 class="text-2xl font-bold text-white">Encryption Integrity Report</h1>
+    <p class="text-sm mt-1" style="color: #94a3b8;">Vault: {{ evidence.vault_id }} — nonce & stored size vs actual storage</p>
+</div>
+
+<div class="card p-6 mb-6 {% if integrity_ok %}chain-intact{% else %}chain-broken{% endif %}">
+    <p class="text-lg font-bold">Integrity: {% if integrity_ok %}✓ OK{% else %}✗ ISSUE{% endif %}</p>
+    {% if error %}<p class="text-sm mt-2" style="color: #fca5a5;">{{ error }}</p>{% endif %}
+</div>
+
+<div class="card p-6 space-y-4">
+    <div>
+        <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Stored size (recorded)</p>
+        <p class="text-white">{{ stored_size_recorded }}</p>
+    </div>
+    <div>
+        <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Actual size in storage</p>
+        <p class="text-white">{{ actual_size_in_storage }}</p>
+    </div>
+    <div>
+        <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Size match</p>
+        <p class="{% if size_match %}text-green-400{% else %}text-red-400{% endif %}">{% if size_match %}✓ Yes{% else %}✗ No{% endif %}</p>
+    </div>
+    <div>
+        <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Nonce present (12 bytes)</p>
+        <p class="{% if nonce_present %}text-green-400{% else %}text-red-400{% endif %}">{% if nonce_present %}✓ Yes{% else %}✗ No{% endif %}</p>
+    </div>
+</div>
+{% endblock %}

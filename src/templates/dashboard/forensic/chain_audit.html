@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | Full Chain Audit{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'dashboard-forensic-home' %}" class="text-sm mb-2 inline-block" style="color: #60a5fa;">← Forensic Dashboard</a>
+    <h1 class="text-2xl font-bold text-white">Full Chain Audit</h1>
+    <p class="text-sm mt-1" style="color: #94a3b8;">Block-by-block cryptographic breakdown — stored vs recomputed hashes</p>
+</div>
+
+<div class="card p-5 mb-6 {% if result.is_intact %}chain-intact{% else %}chain-broken{% endif %}">
+    <p class="font-semibold text-white">Chain: {% if result.is_intact %}INTACT{% else %}COMPROMISED{% endif %} | Total blocks: {{ result.total_blocks }}{% if result.broken_at_block %} | Broken at block #{{ result.broken_at_block }}{% endif %}</p>
+    {% if result.error %}<p class="text-sm mt-1" style="color: #fca5a5;">{{ result.error }}</p>{% endif %}
+</div>
+
+<div class="card">
+    <div class="p-5" style="border-bottom: 1px solid #334155;">
+        <h2 class="font-semibold text-white">Blocks</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr style="border-bottom: 1px solid #334155;">
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">#</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Event</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Valid</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Stored Hash</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Recomputed Hash</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in result.blocks_checked %}
+                <tr style="border-bottom: 1px solid #1e293b;" class="{% if not b.is_valid %}chain-broken{% endif %}">
+                    <td class="px-5 py-4 font-medium text-white">{{ b.block_number }}</td>
+                    <td class="px-5 py-4" style="color: #e2e8f0;">{{ b.event_type }}</td>
+                    <td class="px-5 py-4">
+                        <span class="px-2 py-1 rounded text-xs {% if b.is_valid %}badge-verified{% else %}badge-flagged{% endif %}">
+                            {% if b.is_valid %}✓{% else %}✗{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 hash-text text-xs" style="color: #93c5fd;">{{ b.stored_hash|truncatechars:24 }}...</td>
+                    <td class="px-5 py-4 hash-text text-xs" style="color: #86efac;">{{ b.recomputed_hash|truncatechars:24 }}...</td>
+                    <td class="px-5 py-4 text-xs" style="color: #94a3b8;">{{ b.timestamp }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="px-5 py-8 text-center" style="color: #64748b;">No blocks.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | Forensic Analyst Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Forensic Analyst Dashboard</h1>
+    <p class="text-sm mt-1" style="color: #94a3b8;">
+        Deep technical examination — flagged cases, chain audit, hash re-verification
+    </p>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="card p-5">
+        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Total Cases</p>
+        <p class="text-3xl font-bold text-white">{{ stats.total }}</p>
+    </div>
+    <div class="card p-5">
+        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Flagged Queue</p>
+        <p class="text-3xl font-bold" style="color: #ef4444;">{{ flagged_count }}</p>
+        <a href="{% url 'dashboard-forensic-flagged' %}" class="text-xs mt-1 block" style="color: #60a5fa;">View flagged →</a>
+    </div>
+    <div class="card p-5">
+        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Verified</p>
+        <p class="text-3xl font-bold" style="color: #22c55e;">{{ stats.verified }}</p>
+    </div>
+    <div class="card p-5">
+        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Pending</p>
+        <p class="text-3xl font-bold" style="color: #f59e0b;">{{ stats.pending }}</p>
+    </div>
+</div>
+
+<!-- Chain Status -->
+<div class="card p-5 mb-8 {% if chain_intact %}chain-intact{% else %}chain-broken{% endif %}">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <span class="text-2xl">{% if chain_intact %}✅{% else %}🚨{% endif %}</span>
+            <div>
+                <p class="font-semibold text-white">Full Chain: {% if chain_intact %}INTACT{% else %}COMPROMISED{% endif %}</p>
+                <p class="text-xs mt-1" style="color: #94a3b8;">{{ total_blocks }} blocks</p>
+            </div>
+        </div>
+        <a href="{% url 'dashboard-forensic-chain-audit' %}"
+           class="px-4 py-2 rounded text-sm font-medium"
+           style="background-color: #1e3a5f; color: #93c5fd;">
+            Full Chain Audit →
+        </a>
+    </div>
+</div>
+
+<!-- Quick links -->
+<div class="card p-5 mb-8">
+    <h2 class="font-semibold text-white mb-4">Forensic Tools</h2>
+    <div class="flex flex-wrap gap-3">
+        <a href="{% url 'dashboard-forensic-flagged' %}" class="px-4 py-2 rounded text-sm" style="background-color: #7f1d1d; color: #fca5a5;">Flagged Cases Queue</a>
+        <a href="{% url 'dashboard-forensic-chain-audit' %}" class="px-4 py-2 rounded text-sm" style="background-color: #1e3a5f; color: #93c5fd;">Block-by-Block Chain Audit</a>
+        <a href="{% url 'dashboard-forensic-tamper-log' %}" class="px-4 py-2 rounded text-sm" style="background-color: #1e3a5f; color: #93c5fd;">Tamper Event Log</a>
+        <a href="{% url 'dashboard-cases' %}" class="px-4 py-2 rounded text-sm" style="background-color: #334155; color: #e2e8f0;">All Cases</a>
+    </div>
+</div>
+
+<!-- Recent cases -->
+<div class="card">
+    <div class="flex items-center justify-between p-5" style="border-bottom: 1px solid #334155;">
+        <h2 class="font-semibold text-white">Recent Cases</h2>
+        <a href="{% url 'dashboard-cases' %}" class="text-sm" style="color: #60a5fa;">View All →</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr style="border-bottom: 1px solid #334155;">
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Vault ID</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Harm Type</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Status</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in recent_evidence %}
+                <tr style="border-bottom: 1px solid #1e293b;">
+                    <td class="px-5 py-4 hash-text text-xs" style="color: #93c5fd;">{{ ev.vault_id|stringformat:"s"|truncatechars:20 }}...</td>
+                    <td class="px-5 py-4" style="color: #e2e8f0;">{{ ev.get_harm_type_display }}</td>
+                    <td class="px-5 py-4">
+                        <span class="px-2 py-1 rounded text-xs {% if ev.status == 'flagged' %}badge-flagged{% elif ev.status == 'verified' %}badge-verified{% else %}badge-pending{% endif %}">
+                            {{ ev.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4">
+                        <a href="{% url 'dashboard-case-detail' ev.vault_id %}" class="text-xs px-2 py-1 rounded mr-1" style="background-color: #1e3a5f; color: #93c5fd;">View</a>
+                        <a href="{% url 'dashboard-forensic-reverify' ev.vault_id %}" class="text-xs px-2 py-1 rounded" style="background-color: #166534; color: #86efac;">Re-verify</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="px-5 py-8 text-center text-sm" style="color: #64748b;">No cases.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
