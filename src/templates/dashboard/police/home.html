@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | Police Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Police Officer Dashboard</h1>
+    <p class="text-sm mt-1" style="color: #94a3b8;">
+        Upazila Case Stats | {{ upazila }}
+    </p>
+</div>
+
+<!-- Upazila Case Stats -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="card p-5">
+        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Total Cases</p>
+        <p class="text-3xl font-bold text-white">{{ stats.total }}</p>
+        <p class="text-xs mt-1" style="color: #94a3b8;">In your jurisdiction</p>
+    </div>
+    <div class="card p-5">
+        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Verified</p>
+        <p class="text-3xl font-bold" style="color: #22c55e;">{{ stats.verified }}</p>
+        <p class="text-xs mt-1" style="color: #94a3b8;">Ready for submission</p>
+    </div>
+    <div class="card p-5">
+        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Pending</p>
+        <p class="text-3xl font-bold" style="color: #f59e0b;">{{ stats.pending }}</p>
+        <p class="text-xs mt-1" style="color: #94a3b8;">Awaiting verification</p>
+    </div>
+    <div class="card p-5">
+        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Flagged</p>
+        <p class="text-3xl font-bold" style="color: #ef4444;">{{ stats.flagged }}</p>
+        <p class="text-xs mt-1" style="color: #94a3b8;">Integrity issues</p>
+    </div>
+</div>
+
+<!-- Chain Status Banner -->
+<div class="card p-5 mb-8 {% if chain_intact %}chain-intact{% else %}chain-broken{% endif %}">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <span class="text-2xl">{% if chain_intact %}✅{% else %}🚨{% endif %}</span>
+            <div>
+                <p class="font-semibold text-white">
+                    Chain of Custody:
+                    <span {% if chain_intact %}style="color:#22c55e"{% else %}style="color:#ef4444"{% endif %}>
+                        {% if chain_intact %}INTACT{% else %}COMPROMISED{% endif %}
+                    </span>
+                </p>
+                <p class="text-xs mt-1" style="color: #94a3b8;">
+                    {{ total_blocks }} blocks verified
+                </p>
+            </div>
+        </div>
+        <a href="{% url 'dashboard-chain-verify' %}"
+           class="px-4 py-2 rounded text-sm font-medium"
+           style="background-color: #1e3a5f; color: #93c5fd;">
+            Full Verification →
+        </a>
+    </div>
+</div>
+
+<!-- Case Inbox -->
+<div class="card">
+    <div class="flex items-center justify-between p-5"
+         style="border-bottom: 1px solid #334155;">
+        <h2 class="font-semibold text-white">Case Inbox</h2>
+        <a href="{% url 'dashboard-cases' %}"
+           class="text-sm font-medium" style="color: #60a5fa;">
+            View All Cases →
+        </a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr style="border-bottom: 1px solid #334155;">
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Vault ID</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Harm Type</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Status</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Uploaded</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
+                        style="color: #64748b;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in recent_evidence %}
+                <tr style="border-bottom: 1px solid #1e293b;">
+                    <td class="px-5 py-4">
+                        <span class="hash-text" style="color: #93c5fd;">
+                            {{ ev.vault_id|stringformat:"s"|truncatechars:16 }}...
+                        </span>
+                    </td>
+                    <td class="px-5 py-4" style="color: #e2e8f0;">
+                        {{ ev.get_harm_type_display }}
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="px-2 py-1 rounded text-xs font-medium
+                            {% if ev.status == 'verified' %}badge-verified
+                            {% elif ev.status == 'pending' %}badge-pending
+                            {% elif ev.status == 'flagged' %}badge-flagged
+                            {% else %}badge-submitted{% endif %}">
+                            {{ ev.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-xs" style="color: #94a3b8;">
+                        {{ ev.uploaded_at|date:"M d, Y H:i" }}
+                    </td>
+                    <td class="px-5 py-4">
+                        <a href="{% url 'dashboard-case-detail' ev.vault_id %}"
+                           class="text-xs px-3 py-1 rounded"
+                           style="background-color: #1e3a5f; color: #93c5fd;">
+                            View →
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-5 py-8 text-center text-sm"
+                        style="color: #64748b;">
+                        No cases in your inbox.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

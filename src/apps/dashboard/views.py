@@ -5,9 +5,10 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from apps.evidence.models import Evidence
+from apps.blockchain.models import ForensicLog
 from apps.blockchain.services import verify_chain_integrity, verify_single_evidence_chain
 from apps.accounts.models import User
-from apps.dashboard.permissions import get_evidence_queryset_for_role
+from apps.dashboard.permissions import get_evidence_queryset_for_role, role_required
 
 
 DASHBOARD_ROLES = [
@@ -87,11 +88,14 @@ def _role_home_context(request):
 
 
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+@method_decorator(role_required(User.UserRole.POLICE), name="dispatch")
 class PoliceHomeView(View):
+    """Police dashboard: upazila case stats, case inbox link, chain status (Phase 3)."""
     def get(self, request):
         context = _role_home_context(request)
         context["role_label"] = "Police"
-        return render(request, "dashboard/home.html", context)
+        context["upazila"] = request.user.assigned_upazila or "All regions"
+        return render(request, "dashboard/police/home.html", context)
 
 
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
@@ -116,6 +120,32 @@ class JudiciaryHomeView(View):
         context = _role_home_context(request)
         context["role_label"] = "Judiciary"
         return render(request, "dashboard/home.html", context)
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+@method_decorator(role_required(User.UserRole.POLICE), name="dispatch")
+class MarkForSubmissionView(View):
+    """Mark evidence as submitted to court (Police only). POST only; adds ForensicLog TRANSFER (Phase 3)."""
+    def post(self, request, vault_id):
+        base_qs = Evidence.objects.all()
+        allowed_qs = get_evidence_queryset_for_role(request.user, base_qs)
+        evidence = get_object_or_404(allowed_qs, vault_id=vault_id)
+        if evidence.status != Evidence.EvidenceStatus.VERIFIED:
+            return redirect("dashboard-case-detail", vault_id=vault_id)
+        evidence.status = Evidence.EvidenceStatus.SUBMITTED
+        evidence.save(update_fields=["status"])
+        ForensicLog.objects.create(
+            event_type=ForensicLog.EventType.TRANSFER,
+            evidence=evidence,
+            evidence_hash_snapshot=evidence.file_hash,
+            actor_user_id=str(request.user.id),
+            actor_role=request.user.role,
+            notes=f"Submitted to court by police. Officer: {request.user.username}.",
+        )
+        return redirect("dashboard-case-detail", vault_id=vault_id)
+
+    def get(self, request, vault_id):
+        return redirect("dashboard-case-detail", vault_id=vault_id)
 
 
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
