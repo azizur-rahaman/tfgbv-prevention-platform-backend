@@ -3,128 +3,79 @@
 
 {% block content %}
 <div class="mb-6">
-    <h1 class="text-2xl font-bold text-white">Dashboard Overview</h1>
-    <p class="text-sm mt-1" style="color: #94a3b8;">
-        Forensic Evidence Management | {% if role_label %}{{ role_label }}{% else %}{{ user.assigned_upazila|default:"All Regions" }}{% endif %}
-    </p>
+    <h1 class="text-2xl font-bold text-body">Dashboard Overview</h1>
+    <p class="text-sm mt-1 text-muted">Forensic Evidence Management | {% if role_label %}{{ role_label }}{% else %}{{ user.assigned_upazila|default:"All Regions" }}{% endif %}</p>
 </div>
 
-<!-- Stats Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
     <div class="card p-5">
-        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Total Cases</p>
-        <p class="text-3xl font-bold text-white">{{ stats.total }}</p>
-        <p class="text-xs mt-1" style="color: #94a3b8;">All evidence records</p>
+        <p class="text-xs uppercase tracking-wider mb-2 text-muted">Total Cases</p>
+        <p class="text-3xl font-bold text-body">{{ stats.total }}</p>
+        <p class="text-xs mt-1 text-muted">All evidence records</p>
     </div>
     <div class="card p-5">
-        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Verified</p>
-        <p class="text-3xl font-bold" style="color: #22c55e;">{{ stats.verified }}</p>
-        <p class="text-xs mt-1" style="color: #94a3b8;">Hash confirmed & sealed</p>
+        <p class="text-xs uppercase tracking-wider mb-2 text-muted">Verified</p>
+        <p class="text-3xl font-bold text-bd-green">{{ stats.verified }}</p>
+        <p class="text-xs mt-1 text-muted">Hash confirmed & sealed</p>
     </div>
     <div class="card p-5">
-        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Pending</p>
-        <p class="text-3xl font-bold" style="color: #f59e0b;">{{ stats.pending }}</p>
-        <p class="text-xs mt-1" style="color: #94a3b8;">Awaiting verification</p>
+        <p class="text-xs uppercase tracking-wider mb-2 text-muted">Pending</p>
+        <p class="text-3xl font-bold text-amber-600">{{ stats.pending }}</p>
+        <p class="text-xs mt-1 text-muted">Awaiting verification</p>
     </div>
     <div class="card p-5">
-        <p class="text-xs uppercase tracking-wider mb-2" style="color: #64748b;">Flagged</p>
-        <p class="text-3xl font-bold" style="color: #ef4444;">{{ stats.flagged }}</p>
-        <p class="text-xs mt-1" style="color: #94a3b8;">Integrity issues detected</p>
+        <p class="text-xs uppercase tracking-wider mb-2 text-muted">Flagged</p>
+        <p class="text-3xl font-bold text-bd-red">{{ stats.flagged }}</p>
+        <p class="text-xs mt-1 text-muted">Integrity issues detected</p>
     </div>
 </div>
 
-<!-- Chain Status Banner -->
 <div class="card p-5 mb-8 {% if chain_intact %}chain-intact{% else %}chain-broken{% endif %}">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3">
-            <span class="text-2xl">{% if chain_intact %}✅{% else %}🚨{% endif %}</span>
+            {% if chain_intact %}
+            <svg class="icon w-8 h-8 text-bd-green" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            {% else %}
+            <svg class="icon w-8 h-8 text-bd-red" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            {% endif %}
             <div>
-                <p class="font-semibold text-white">
-                    Blockchain Chain of Custody:
-                    <span {% if chain_intact %}style="color:#22c55e"{% else %}style="color:#ef4444"{% endif %}>
-                        {% if chain_intact %}INTACT{% else %}COMPROMISED{% endif %}
-                    </span>
-                </p>
-                <p class="text-xs mt-1" style="color: #94a3b8;">
-                    {{ total_blocks }} blocks verified |
-                    {% if chain_intact %}
-                        All evidence hashes match blockchain records
-                    {% else %}
-                        ⚠️ Tampering detected — immediate forensic review required
-                    {% endif %}
-                </p>
+                <p class="font-semibold text-body">Blockchain chain of custody: <span class="{% if chain_intact %}text-bd-green{% else %}text-bd-red{% endif %}">{% if chain_intact %}INTACT{% else %}COMPROMISED{% endif %}</span></p>
+                <p class="text-xs mt-1 text-muted">{{ total_blocks }} blocks verified. {% if chain_intact %}All evidence hashes match ledger records.{% else %}Tampering detected — forensic review required.{% endif %}</p>
             </div>
         </div>
-        <a href="{% url 'dashboard-chain-verify' %}"
-           class="px-4 py-2 rounded text-sm font-medium"
-           style="background-color: #1e3a5f; color: #93c5fd;">
-            Full Verification →
-        </a>
+        <a href="{% url 'dashboard-chain-verify' %}" class="px-4 py-2 rounded text-sm font-medium btn-primary text-white">Run verification</a>
     </div>
 </div>
 
-<!-- Recent Cases -->
 <div class="card">
-    <div class="flex items-center justify-between p-5"
-         style="border-bottom: 1px solid #334155;">
-        <h2 class="font-semibold text-white">Recent Evidence Cases</h2>
-        <a href="{% url 'dashboard-cases' %}"
-           class="text-sm" style="color: #60a5fa;">View All →</a>
+    <div class="flex items-center justify-between p-5 border-b border-gray-200">
+        <h2 class="font-semibold text-body">Recent Evidence Cases</h2>
+        <a href="{% url 'dashboard-cases' %}" class="text-sm link-primary">View all</a>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
-                <tr style="border-bottom: 1px solid #334155;">
-                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
-                        style="color: #64748b;">Vault ID</th>
-                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
-                        style="color: #64748b;">Harm Type</th>
-                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
-                        style="color: #64748b;">Status</th>
-                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
-                        style="color: #64748b;">Uploaded</th>
-                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider"
-                        style="color: #64748b;">Action</th>
+                <tr class="table-th">
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Vault ID</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Harm Type</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Status</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Uploaded</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for ev in recent_evidence %}
-                <tr style="border-bottom: 1px solid #1e293b;">
+                <tr class="table-td">
+                    <td class="px-5 py-4"><span class="hash-text">{{ ev.vault_id|stringformat:"s"|truncatechars:16 }}...</span></td>
+                    <td class="px-5 py-4 text-body">{{ ev.get_harm_type_display }}</td>
                     <td class="px-5 py-4">
-                        <span class="hash-text" style="color: #93c5fd;">
-                            {{ ev.vault_id|stringformat:"s"|truncatechars:16 }}...
-                        </span>
+                        <span class="px-2 py-1 rounded text-xs font-medium {% if ev.status == 'verified' %}badge-verified{% elif ev.status == 'pending' %}badge-pending{% elif ev.status == 'flagged' %}badge-flagged{% else %}badge-submitted{% endif %}">{{ ev.get_status_display }}</span>
                     </td>
-                    <td class="px-5 py-4" style="color: #e2e8f0;">
-                        {{ ev.get_harm_type_display }}
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="px-2 py-1 rounded text-xs font-medium
-                            {% if ev.status == 'verified' %}badge-verified
-                            {% elif ev.status == 'pending' %}badge-pending
-                            {% elif ev.status == 'flagged' %}badge-flagged
-                            {% else %}badge-submitted{% endif %}">
-                            {{ ev.get_status_display }}
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-xs" style="color: #94a3b8;">
-                        {{ ev.uploaded_at|date:"M d, Y H:i" }}
-                    </td>
-                    <td class="px-5 py-4">
-                        <a href="{% url 'dashboard-case-detail' ev.vault_id %}"
-                           class="text-xs px-3 py-1 rounded"
-                           style="background-color: #1e3a5f; color: #93c5fd;">
-                            View →
-                        </a>
-                    </td>
+                    <td class="px-5 py-4 text-xs text-muted">{{ ev.uploaded_at|date:"M d, Y H:i" }}</td>
+                    <td class="px-5 py-4"><a href="{% url 'dashboard-case-detail' ev.vault_id %}" class="text-xs px-3 py-1 rounded btn-primary text-white">Open</a></td>
                 </tr>
                 {% empty %}
-                <tr>
-                    <td colspan="5" class="px-5 py-8 text-center text-sm"
-                        style="color: #64748b;">
-                        No evidence cases found.
-                    </td>
-                </tr>
+                <tr><td colspan="5" class="px-5 py-8 text-center text-sm text-muted">No records.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

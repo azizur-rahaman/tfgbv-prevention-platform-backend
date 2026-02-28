@@ -4,92 +4,79 @@
 {% block content %}
 <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
     <div>
-        <a href="{% url 'dashboard-certificates' %}"
-           class="text-sm mb-2 inline-block" style="color: #60a5fa;">
-            ← Back to Certificates
-        </a>
-        <h1 class="text-xl font-bold text-white">Section 65B Certificate</h1>
-        <p class="text-sm mt-1" style="color: #94a3b8;">
-            Bangladesh Evidence Act 2022 — Digital Evidence Admissibility
-        </p>
+        <a href="{% url 'dashboard-certificates' %}" class="text-sm mb-2 inline-block link-primary">Return to certificates</a>
+        <h1 class="text-xl font-bold text-body">Section 65B Certificate</h1>
+        <p class="text-sm mt-1 text-muted">Bangladesh Evidence Act 2022 — Digital Evidence Admissibility</p>
     </div>
     <div class="flex gap-3 items-center">
         {% if pdf_error %}
-        <span class="text-xs px-3 py-1 rounded" style="background-color: #7f1d1d; color: #fca5a5;">{{ pdf_error }}</span>
+        <span class="text-xs px-3 py-1 rounded msg-error">{{ pdf_error }}</span>
         {% else %}
-        <a href="{% url 'dashboard-certificate-pdf' evidence.vault_id %}"
-           class="px-4 py-2 rounded text-sm font-medium"
-           style="background-color: #1e3a5f; color: #93c5fd;">
-            📥 Download PDF
-        </a>
+        <a href="{% url 'dashboard-certificate-pdf' evidence.vault_id %}" class="px-4 py-2 rounded text-sm font-medium btn-primary text-body">Download PDF</a>
         {% endif %}
-        <button type="button" onclick="window.print();"
-                class="px-4 py-2 rounded text-sm font-medium"
-                style="background-color: #166534; color: #86efac;">
-            🖨️ Print
-        </button>
+        <button type="button" onclick="window.print();" class="px-4 py-2 rounded text-sm font-medium btn-primary text-body">Print</button>
     </div>
 </div>
 
 <div class="card p-6 certificate-print" id="certificate-content">
-    <div class="text-center border-b pb-4 mb-6" style="border-color: #334155;">
-        <h2 class="text-lg font-bold text-white">CERTIFICATE UNDER SECTION 65B</h2>
-        <p class="text-xs mt-1" style="color: #94a3b8;">Bangladesh Evidence Act 2022 — Electronic Evidence</p>
+    <div class="text-center border-b border-gray-200 pb-4 mb-6">
+        <h2 class="text-lg font-bold text-body">CERTIFICATE UNDER SECTION 65B</h2>
+        <p class="text-xs mt-1 text-muted">Bangladesh Evidence Act 2022 — Electronic Evidence</p>
     </div>
 
     <div class="space-y-4 text-sm">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Vault ID (Evidence Reference)</p>
-                <p class="hash-text font-medium text-white">{{ evidence.vault_id }}</p>
+                <p class="text-xs uppercase tracking-wider mb-1 text-muted">Vault ID (Evidence Reference)</p>
+                <p class="hash-text font-medium text-body">{{ evidence.vault_id }}</p>
             </div>
             <div>
-                <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">SHA-256 File Hash</p>
-                <p class="hash-text text-xs font-medium" style="color: #4ade80;">{{ evidence.file_hash }}</p>
+                <p class="text-xs uppercase tracking-wider mb-1 text-muted">SHA-256 File Hash</p>
+                <p class="hash-text text-xs font-medium">{{ evidence.file_hash }}</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Chain of Custody</p>
-                <p class="font-semibold {% if chain_result.is_intact %}" style="color:#22c55e;"{% else %}" style="color:#ef4444;"{% endif %}">
-                    {% if chain_result.is_intact %}INTACT ✓{% else %}COMPROMISED ✗{% endif %}
+                <p class="text-xs uppercase tracking-wider mb-1 text-muted">Chain of Custody</p>
+                <p class="font-semibold {% if chain_result.is_intact %}text-bd-green{% else %}text-bd-red{% endif %}">
+                    {% if chain_result.is_intact %}INTACT{% else %}COMPROMISED{% endif %}
                 </p>
             </div>
             <div>
-                <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Hash Verified</p>
-                <p class="font-medium {% if evidence.is_hash_verified %}" style="color:#22c55e;"{% else %}" style="color:#f59e0b;"{% endif %}">
-                    {% if evidence.is_hash_verified %}Yes ✓{% else %}Pending{% endif %}
+                <p class="text-xs uppercase tracking-wider mb-1 text-muted">Hash Verified</p>
+                <p class="font-medium {% if evidence.is_hash_verified %}text-bd-green{% else %}text-amber-600{% endif %}">
+                    {% if evidence.is_hash_verified %}Verified{% else %}Pending{% endif %}
                 </p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Evidence Type</p>
-                <p class="text-white">{{ evidence.get_evidence_type_display }}</p>
+                <p class="text-xs uppercase tracking-wider mb-1 text-muted">Evidence Type</p>
+                <p class="text-body">{{ evidence.get_evidence_type_display }}</p>
             </div>
             <div>
-                <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Harm Classification</p>
-                <p class="text-white">{{ evidence.get_harm_type_display }}</p>
+                <p class="text-xs uppercase tracking-wider mb-1 text-muted">Harm Classification</p>
+                <p class="text-body">{{ evidence.get_harm_type_display }}</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Captured At (Device Time)</p>
-                <p class="text-white">{{ evidence.captured_at|date:"F j, Y, H:i" }}</p>
+                <p class="text-xs uppercase tracking-wider mb-1 text-muted">Captured At (Device Time)</p>
+                <p class="text-body">{{ evidence.captured_at|date:"F j, Y, H:i" }}</p>
             </div>
             <div>
-                <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Uploaded to Vault</p>
-                <p class="text-white">{{ evidence.uploaded_at|date:"F j, Y, H:i" }}</p>
+                <p class="text-xs uppercase tracking-wider mb-1 text-muted">Uploaded to Vault</p>
+                <p class="text-body">{{ evidence.uploaded_at|date:"F j, Y, H:i" }}</p>
             </div>
         </div>
 
         {% if evidence.verdict %}
         <div>
-            <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Court Disposition</p>
-            <p class="text-white">{{ evidence.get_verdict_display }}{% if evidence.verdict_at %} — {{ evidence.verdict_at|date:"F j, Y" }}{% endif %}</p>
+            <p class="text-xs uppercase tracking-wider mb-1 text-muted">Court Disposition</p>
+            <p class="text-body">{{ evidence.get_verdict_display }}{% if evidence.verdict_at %} — {{ evidence.verdict_at|date:"F j, Y" }}{% endif %}</p>
         </div>
         {% endif %}
     </div>

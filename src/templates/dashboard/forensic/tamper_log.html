@@ -3,47 +3,47 @@
 
 {% block content %}
 <div class="mb-6">
-    <a href="{% url 'dashboard-forensic-home' %}" class="text-sm mb-2 inline-block" style="color: #60a5fa;">← Forensic Dashboard</a>
-    <h1 class="text-2xl font-bold text-white">Tamper Event Log</h1>
-    <p class="text-sm mt-1" style="color: #94a3b8;">Blocks where hash verification failed — {{ invalid_blocks|length }} invalid</p>
+    <a href="{% url 'dashboard-forensic-home' %}" class="text-sm mb-2 inline-block link-primary">Return to dashboard</a>
+    <h1 class="text-2xl font-bold text-body">Tamper event log</h1>
+    <p class="text-sm mt-1 text-muted">Blocks where hash verification failed — {{ invalid_blocks|length }} invalid</p>
 </div>
 
 <div class="card p-5 mb-6 {% if result.is_intact %}chain-intact{% else %}chain-broken{% endif %}">
-    <p class="font-semibold text-white">Full chain: {% if result.is_intact %}INTACT{% else %}COMPROMISED{% endif %} | Total: {{ result.total_blocks }}</p>
-    {% if result.error %}<p class="text-sm mt-1" style="color: #fca5a5;">{{ result.error }}</p>{% endif %}
+    <p class="font-semibold text-body">Full chain: {% if result.is_intact %}INTACT{% else %}COMPROMISED{% endif %} | Total: {{ result.total_blocks }}</p>
+    {% if result.error %}<p class="text-sm mt-1 text-bd-red">{{ result.error }}</p>{% endif %}
 </div>
 
 <div class="card">
-    <div class="p-5" style="border-bottom: 1px solid #334155;">
-        <h2 class="font-semibold text-white">Invalid Blocks</h2>
+    <div class="p-5 border-b border-gray-200">
+        <h2 class="font-semibold text-body">Invalid blocks</h2>
     </div>
     {% if invalid_blocks %}
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
-                <tr style="border-bottom: 1px solid #334155;">
-                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Block #</th>
-                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Event</th>
-                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Stored Hash</th>
-                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Recomputed</th>
-                    <th class="text-left px-5 py-3 text-xs uppercase" style="color: #64748b;">Timestamp</th>
+                <tr class="table-th">
+                    <th class="text-left px-5 py-3 text-xs uppercase text-muted">Block</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase text-muted">Event</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase text-muted">Stored hash</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase text-muted">Recomputed</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase text-muted">Timestamp</th>
                 </tr>
             </thead>
             <tbody>
                 {% for b in invalid_blocks %}
-                <tr style="border-bottom: 1px solid #1e293b;" class="chain-broken">
-                    <td class="px-5 py-4 font-medium text-white">{{ b.block_number }}</td>
-                    <td class="px-5 py-4" style="color: #e2e8f0;">{{ b.event_type }}</td>
-                    <td class="px-5 py-4 hash-text text-xs" style="color: #fca5a5;">{{ b.stored_hash|truncatechars:20 }}...</td>
-                    <td class="px-5 py-4 hash-text text-xs" style="color: #86efac;">{{ b.recomputed_hash|truncatechars:20 }}...</td>
-                    <td class="px-5 py-4 text-xs" style="color: #94a3b8;">{{ b.timestamp }}</td>
+                <tr class="table-td bg-red-50">
+                    <td class="px-5 py-4 font-medium text-body">{{ b.block_number }}</td>
+                    <td class="px-5 py-4 text-body">{{ b.event_type }}</td>
+                    <td class="px-5 py-4 hash-text text-xs">{{ b.stored_hash|truncatechars:20 }}...</td>
+                    <td class="px-5 py-4 hash-text text-xs">{{ b.recomputed_hash|truncatechars:20 }}...</td>
+                    <td class="px-5 py-4 text-xs text-muted">{{ b.timestamp }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     {% else %}
-    <div class="p-8 text-center text-sm" style="color: #64748b;">No invalid blocks — chain verification passed for all blocks.</div>
+    <div class="p-8 text-center text-sm text-muted">No invalid blocks. Chain verification passed for all blocks.</div>
     {% endif %}
 </div>
 {% endblock %}

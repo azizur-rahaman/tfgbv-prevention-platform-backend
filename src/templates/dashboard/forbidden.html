@@ -2,21 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Access Denied</title>
+    <title>Access Denied | Nirvhoy</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { theme: { extend: { colors: { 'bd': { green: '#006A4E', 'green-dark': '#004D38', red: '#C41E3A' } } } } }</script>
 </head>
-<body class="bg-gray-950 min-h-screen flex items-center justify-center">
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
     <div class="text-center">
-        <div class="w-20 h-20 bg-red-900/50 border border-red-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <span class="text-red-400 text-4xl">⛔</span>
+        <div class="w-20 h-20 bg-red-100 border-2 border-bd-red rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-bd-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         </div>
-        <h1 class="text-white text-2xl font-bold">Access Denied</h1>
-        <p class="text-gray-400 text-sm mt-2">
-            Your role does not have permission to access this page.
+        <h1 class="text-2xl font-bold text-gray-800">Access Denied</h1>
+        <p class="text-gray-600 text-sm mt-2">
+            You do not have permission to access this resource.
         </p>
         <a href="/dashboard/"
-           class="inline-block mt-6 bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg text-sm">
-            ← Return to Dashboard
+           class="inline-block mt-6 bg-bd-green hover:opacity-90 text-white px-6 py-2 rounded-lg text-sm">
+            Return to dashboard
         </a>
     </div>
 </body>

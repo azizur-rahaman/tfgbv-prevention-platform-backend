@@ -57,7 +57,7 @@ def get_evidence_queryset_for_role(user, base_queryset):
     """
     Filters an Evidence queryset based on the user's role.
 
-    - Police: only their assigned upazila (future: geo-based)
+    - Police: all evidence (no upazila filter in dev; can re-enable later)
     - Forensic Analyst: all evidence
     - BCC Admin: all evidence
     - Judiciary: only evidence submitted to court
@@ -65,9 +65,7 @@ def get_evidence_queryset_for_role(user, base_queryset):
     from apps.evidence.models import Evidence
 
     if user.role == User.UserRole.POLICE:
-        # Police see evidence for their assigned upazila; if no upazila set, see all
-        if user.assigned_upazila:
-            return base_queryset.filter(assigned_upazila=user.assigned_upazila)
+        # Dev: show all evidence. For production, filter by assigned_upazila if set.
         return base_queryset
 
     elif user.role == User.UserRole.FORENSIC_ANALYST:

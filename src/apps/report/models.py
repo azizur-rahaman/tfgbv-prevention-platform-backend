@@ -23,6 +23,17 @@ class Report(models.Model):
         help_text="User who filed this report.",
     )
 
+    class ReportStatus(models.TextChoices):
+        PENDING_POLICE = "pending_police", "Pending Police Confirmation"
+        FORWARDED_TO_JUDICIARY = "forwarded_to_judiciary", "Forwarded to Judiciary"
+
+    status = models.CharField(
+        max_length=30,
+        choices=ReportStatus.choices,
+        default=ReportStatus.PENDING_POLICE,
+        help_text="Workflow: pending_police → police confirm → forwarded_to_judiciary.",
+    )
+
     # Evidence already in the vault — user supplies vault_ids (evidence hashes / refs)
     evidences = models.ManyToManyField(
         "evidence.Evidence",

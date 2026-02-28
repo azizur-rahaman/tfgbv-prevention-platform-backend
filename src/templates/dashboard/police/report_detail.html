@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | Report {{ report.id }}{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <a href="{% url 'dashboard-police-reports' %}" class="text-sm mb-2 inline-block link-primary">Return to reports</a>
+        <h1 class="text-xl font-bold text-body">Report details</h1>
+        <p class="hash-text mt-1 text-muted">{{ report.id }}</p>
+    </div>
+    <div class="flex gap-3 flex-wrap">
+        {% if report.status == 'pending_police' %}
+        <form method="post" action="{% url 'dashboard-police-report-confirm' report.id %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 rounded text-sm font-medium btn-primary text-white">Approve and forward to court</button>
+        </form>
+        {% else %}
+        <span class="px-4 py-2 rounded text-sm font-medium badge-verified">Forwarded to court</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4 text-muted">Report status</h3>
+            <span class="px-4 py-2 rounded text-sm font-medium {% if report.status == 'pending_police' %}badge-pending{% else %}badge-verified{% endif %}">{{ report.get_status_display }}</span>
+            <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-xs mb-1 text-muted">Created</p>
+                    <p class="text-body">{{ report.created_at|date:"N j, Y, P" }}</p>
+                </div>
+                <div>
+                    <p class="text-xs mb-1 text-muted">Reporter</p>
+                    <p class="text-body">{{ report.reporter.username }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4 text-muted">Testimonial</h3>
+            {% if report.testimonial_text %}
+            <div class="p-4 rounded text-sm whitespace-pre-wrap bg-gray-50 text-body border border-gray-100">{{ report.testimonial_text }}</div>
+            {% else %}
+            <p class="text-sm text-muted">No written testimonial.</p>
+            {% endif %}
+            <div class="mt-3 flex flex-wrap gap-3 text-xs text-muted">
+                {% if report.testimonial_voice_path %}<span>Voice recording: on file</span>{% endif %}
+                {% if report.testimonial_video_path %}<span>Video recording: on file</span>{% endif %}
+                {% if not report.testimonial_voice_path and not report.testimonial_video_path and not report.testimonial_text %}<span>No media attached.</span>{% endif %}
+            </div>
+        </div>
+
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4 text-muted">Digital signature</h3>
+            <p class="text-sm text-body">Signature on file</p>
+            <p class="text-xs mt-1 text-muted">Algorithm: {{ report.signature_algorithm|default:"—" }}</p>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+        <div class="card p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-4 text-muted">Linked evidence</h3>
+            {% if report.evidences.all %}
+            <ul class="space-y-3">
+                {% for ev in report.evidences.all %}
+                <li class="flex items-center justify-between p-3 rounded bg-gray-50 border border-gray-100">
+                    <span class="hash-text text-xs">{{ ev.vault_id }}</span>
+                    <a href="{% url 'dashboard-case-detail' ev.vault_id %}" class="text-xs px-2 py-1 rounded btn-primary text-white">Open case</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-sm text-muted">No evidence linked.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

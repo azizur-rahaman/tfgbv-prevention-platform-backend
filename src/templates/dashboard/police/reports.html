@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Nirvhoy | Reports — Police{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <a href="{% url 'dashboard-police-home' %}" class="text-sm mb-2 inline-block link-primary">Return to dashboard</a>
+        <h1 class="text-2xl font-bold text-body">Reports</h1>
+        <p class="text-sm mt-1 text-muted">Approve reports to forward linked evidence to the court.</p>
+    </div>
+</div>
+
+<div class="card p-4 mb-6 flex flex-wrap gap-3">
+    <a href="{% url 'dashboard-police-reports' %}" class="px-4 py-2 rounded text-sm {% if not request.GET.status %}btn-primary text-white font-medium{% else %}btn-secondary{% endif %}">All</a>
+    <a href="{% url 'dashboard-police-reports' %}?status=pending_police" class="px-4 py-2 rounded text-sm {% if request.GET.status == 'pending_police' %}font-medium bg-amber-100 text-amber-800 border border-amber-200{% else %}btn-secondary{% endif %}">Pending ({{ pending_count }})</a>
+    <a href="{% url 'dashboard-police-reports' %}?status=forwarded_to_judiciary" class="px-4 py-2 rounded text-sm {% if request.GET.status == 'forwarded_to_judiciary' %}font-medium badge-verified{% else %}btn-secondary{% endif %}">Forwarded ({{ forwarded_count }})</a>
+</div>
+
+<div class="card">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="table-th">
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Report ID</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Status</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Evidence</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Created</th>
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in report_list %}
+                <tr class="table-td">
+                    <td class="px-5 py-4"><a href="{% url 'dashboard-police-report-detail' r.id %}" class="hash-text text-xs link-primary">{{ r.id }}</a></td>
+                    <td class="px-5 py-4">
+                        <span class="px-2 py-1 rounded text-xs font-medium {% if r.status == 'pending_police' %}badge-pending{% else %}badge-verified{% endif %}">{{ r.get_status_display }}</span>
+                    </td>
+                    <td class="px-5 py-4 text-xs text-body">
+                        {{ r.evidences.count }} item(s)
+                        {% for ev in r.evidences.all %}
+                            <a href="{% url 'dashboard-case-detail' ev.vault_id %}" class="link-primary ml-1">{{ ev.vault_id|stringformat:"s"|truncatechars:8 }}…</a>
+                        {% endfor %}
+                    </td>
+                    <td class="px-5 py-4 text-xs text-muted">{{ r.created_at|date:"M d, Y H:i" }}</td>
+                    <td class="px-5 py-4 flex flex-wrap gap-2 items-center">
+                        <a href="{% url 'dashboard-police-report-detail' r.id %}" class="text-xs px-3 py-1 rounded btn-secondary">View full report</a>
+                        {% if r.status == 'pending_police' %}
+                        <form method="post" action="{% url 'dashboard-police-report-confirm' r.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-xs px-3 py-1 rounded btn-primary text-white">Approve and forward to court</button>
+                        </form>
+                        {% else %}
+                        <span class="text-xs text-muted">Forwarded to court</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="px-5 py-8 text-center text-sm text-muted">No reports.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

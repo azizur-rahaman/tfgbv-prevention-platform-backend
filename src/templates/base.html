@@ -10,49 +10,82 @@
             theme: {
                 extend: {
                     colors: {
-                        'nirvhoy': {
-                            900: '#0f172a',
-                            800: '#1e293b',
-                            700: '#334155',
-                            600: '#475569',
-                            accent: '#3b82f6',
-                            danger: '#ef4444',
-                            success: '#22c55e',
-                            warning: '#f59e0b',
+                        'bd': {
+                            green: '#006A4E',
+                            'green-light': '#E8F4F0',
+                            'green-dark': '#004D38',
+                            red: '#C41E3A',
+                            'red-light': '#FDF2F2',
+                            'gray': '#4A5568',
+                            'gray-light': '#F7FAFC',
                         }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans Bengali', 'Helvetica Neue', 'Arial', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; color: #e2e8f0; }
-        .sidebar-link:hover { background-color: #1e293b; }
-        .sidebar-link.active { background-color: #1e40af; border-left: 3px solid #3b82f6; }
-        .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 0.5rem; }
-        .badge-verified { background-color: #166534; color: #86efac; }
-        .badge-pending { background-color: #713f12; color: #fde68a; }
-        .badge-flagged { background-color: #7f1d1d; color: #fca5a5; }
-        .badge-submitted { background-color: #1e3a5f; color: #93c5fd; }
-        .chain-intact { border-left: 4px solid #22c55e; }
-        .chain-broken { border-left: 4px solid #ef4444; }
-        .hash-text { font-family: 'Courier New', monospace; font-size: 0.7rem; word-break: break-all; }
+        :root {
+            --bd-green: #006A4E;
+            --bd-green-dark: #004D38;
+            --bd-red: #C41E3A;
+            --bd-red-dark: #9B1630;
+            --bd-gray: #4A5568;
+            --bd-gray-light: #718096;
+            --bd-bg: #F7FAFC;
+            --bd-card: #FFFFFF;
+        }
+        body { background-color: var(--bd-bg); color: #2D3748; font-family: 'Noto Sans Bengali', system-ui, sans-serif; }
+        .dashboard-main { background-color: var(--bd-bg); }
+        .sidebar-link { color: rgba(255,255,255,0.9); }
+        .sidebar-link:hover { background-color: rgba(255,255,255,0.12); color: #fff; }
+        .sidebar-link.active { background-color: rgba(255,255,255,0.2); color: #fff; border-left: 4px solid #fff; }
+        .card { background-color: var(--bd-card); border: 1px solid #E2E8F0; border-radius: 0.375rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .badge-verified { background-color: var(--bd-green-light, #E8F4F0); color: var(--bd-green-dark); }
+        .badge-pending { background-color: #FEF3C7; color: #92400E; }
+        .badge-flagged { background-color: #FEE2E2; color: var(--bd-red-dark); }
+        .badge-submitted { background-color: #DBEAFE; color: #1E40AF; }
+        .chain-intact { border-left: 4px solid var(--bd-green); background-color: #F0FDF4; }
+        .chain-broken { border-left: 4px solid var(--bd-red); background-color: #FEF2F2; }
+        .hash-text { font-family: 'Courier New', monospace; font-size: 0.75rem; word-break: break-all; color: var(--bd-green-dark); }
+        .text-body { color: #2D3748; }
+        .text-muted { color: #718096; }
+        .btn-primary { background-color: var(--bd-green); color: #fff; }
+        .btn-primary:hover { background-color: var(--bd-green-dark); color: #fff; }
+        .btn-secondary { background-color: #EDF2F7; color: #2D3748; border: 1px solid #E2E8F0; }
+        .btn-secondary:hover { background-color: #E2E8F0; }
+        .btn-danger { background-color: var(--bd-red); color: #fff; }
+        .btn-danger:hover { background-color: var(--bd-red-dark); color: #fff; }
+        .link-primary { color: var(--bd-green); }
+        .link-primary:hover { color: var(--bd-green-dark); text-decoration: underline; }
+        .nav-bg { background-color: var(--bd-green); }
+        .sidebar-bg { background-color: var(--bd-green-dark); }
+        .table-th { color: #718096; border-bottom: 1px solid #E2E8F0; }
+        .table-td { border-bottom: 1px solid #F0F4F8; }
+        .msg-success { background-color: #E8F4F0; color: #004D38; border: 1px solid rgba(0,106,78,0.3); }
+        .msg-error { background-color: #FEE2E2; color: #9B1630; border: 1px solid #FECACA; }
+        .icon { width: 1.25rem; height: 1.25rem; flex-shrink: 0; display: inline-block; vertical-align: middle; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .icon-sm { width: 1rem; height: 1rem; }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-screen">
 
-    <!-- Top Navigation Bar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3"
-         style="background-color: #1e293b; border-bottom: 1px solid #334155;">
+    <!-- Top bar: Bangladesh govt style - green header -->
+    <nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3 nav-bg shadow-sm">
         <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center"
-                 style="background-color: #1e40af;">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center bg-white/20">
                 <span class="text-white font-bold text-sm">ন</span>
             </div>
             <div>
                 <span class="font-bold text-white text-lg">Nirvhoy</span>
-                <span class="text-xs ml-2" style="color: #94a3b8;">
+                <span class="text-xs ml-2 text-white/90">
                     নির্ভয় |
                     {% if user.role == 'police' %}Police Dashboard
                     {% elif user.role == 'forensic_analyst' %}Forensic Analyst
@@ -63,152 +96,145 @@
             </div>
         </div>
         <div class="flex items-center space-x-4">
-            <span class="text-sm" style="color: #94a3b8;">
+            <span class="text-sm text-white/90">
                 {% if user.is_authenticated %}
                     {{ user.get_role_display }} |
                     <span class="text-white font-medium">{{ user.username }}</span>
                 {% endif %}
             </span>
             {% if user.is_authenticated %}
-            <a href="{% url 'dashboard-logout' %}"
-               class="px-3 py-1 text-sm rounded"
-               style="background-color: #7f1d1d; color: #fca5a5;">
-                Logout
+            <a href="{% url 'dashboard-logout' %}" class="px-3 py-1.5 text-sm rounded btn-danger text-white">
+                Sign out
             </a>
             {% endif %}
         </div>
     </nav>
 
-    <div class="flex pt-14">
-        <!-- Sidebar -->
+    <div class="flex pt-14 dashboard-main">
         {% if user.is_authenticated %}
-        <aside class="fixed left-0 top-14 bottom-0 w-56 overflow-y-auto"
-               style="background-color: #1e293b; border-right: 1px solid #334155;">
+        <aside class="fixed left-0 top-14 bottom-0 w-56 overflow-y-auto sidebar-bg border-r border-white/10">
             <nav class="p-3 space-y-1">
 
                 {% if user.role == 'police' %}
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">Police</p>
-                <a href="{% url 'dashboard-police-home' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-police-home' %}active{% endif %}">
-                    <span>🏠</span><span>Overview</span>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 text-white/70">Police</p>
+                <a href="{% url 'dashboard-police-home' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-police-home' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span>Overview</span>
                 </a>
-                <a href="{% url 'dashboard-cases' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
-                    <span>📥</span><span>Case Inbox</span>
+                <a href="{% url 'dashboard-cases' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                    <span>Case Inbox</span>
                 </a>
-                <a href="{% url 'dashboard-chain-verify' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
-                    <span>🔗</span><span>Chain Integrity</span>
+                <a href="{% url 'dashboard-police-reports' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-police-reports' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Reports</span>
                 </a>
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
-                <a href="{% url 'dashboard-certificates' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
-                    <span>📜</span><span>65B Certificates</span>
+                <a href="{% url 'dashboard-chain-verify' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    <span>Chain Integrity</span>
+                </a>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4 text-white/70">Legal</p>
+                <a href="{% url 'dashboard-certificates' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>65B Certificates</span>
                 </a>
 
                 {% elif user.role == 'forensic_analyst' %}
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">Forensic</p>
-                <a href="{% url 'dashboard-forensic-home' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-home' %}active{% endif %}">
-                    <span>🏠</span><span>Overview</span>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 text-white/70">Forensic</p>
+                <a href="{% url 'dashboard-forensic-home' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-home' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span>Overview</span>
                 </a>
-                <a href="{% url 'dashboard-forensic-flagged' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-flagged' %}active{% endif %}">
-                    <span>⚠️</span><span>Flagged Cases</span>
+                <a href="{% url 'dashboard-forensic-flagged' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-flagged' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span>Flagged Cases</span>
                 </a>
-                <a href="{% url 'dashboard-forensic-chain-audit' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-chain-audit' %}active{% endif %}">
-                    <span>🔗</span><span>Chain Audit</span>
+                <a href="{% url 'dashboard-forensic-chain-audit' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-chain-audit' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    <span>Chain Audit</span>
                 </a>
-                <a href="{% url 'dashboard-forensic-tamper-log' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-tamper-log' %}active{% endif %}">
-                    <span>📋</span><span>Tamper Log</span>
+                <a href="{% url 'dashboard-forensic-tamper-log' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-forensic-tamper-log' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Tamper Log</span>
                 </a>
-                <a href="{% url 'dashboard-cases' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
-                    <span>📁</span><span>Evidence Cases</span>
+                <a href="{% url 'dashboard-cases' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                    <span>Evidence Cases</span>
                 </a>
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
-                <a href="{% url 'dashboard-certificates' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
-                    <span>📜</span><span>65B Certificates</span>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4 text-white/70">Legal</p>
+                <a href="{% url 'dashboard-certificates' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>65B Certificates</span>
                 </a>
 
                 {% elif user.role == 'bcc_admin' %}
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">BCC Admin</p>
-                <a href="{% url 'dashboard-bcc-home' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-bcc-home' %}active{% endif %}">
-                    <span>🏠</span><span>Overview</span>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 text-white/70">BCC Admin</p>
+                <a href="{% url 'dashboard-bcc-home' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-bcc-home' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span>Overview</span>
                 </a>
-                <a href="{% url 'dashboard-cases' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
-                    <span>📁</span><span>Evidence Cases</span>
+                <a href="{% url 'dashboard-cases' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                    <span>Evidence Cases</span>
                 </a>
-                <a href="{% url 'dashboard-chain-verify' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
-                    <span>🔗</span><span>Chain Integrity</span>
+                <a href="{% url 'dashboard-chain-verify' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    <span>Chain Integrity</span>
                 </a>
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
-                <a href="{% url 'dashboard-certificates' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
-                    <span>📜</span><span>65B Certificates</span>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4 text-white/70">Legal</p>
+                <a href="{% url 'dashboard-certificates' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>65B Certificates</span>
                 </a>
 
                 {% elif user.role == 'judiciary' %}
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">Judiciary</p>
-                <a href="{% url 'dashboard-judiciary-home' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-judiciary-home' %}active{% endif %}">
-                    <span>🏠</span><span>Overview</span>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 text-white/70">Judiciary</p>
+                <a href="{% url 'dashboard-judiciary-home' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-judiciary-home' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span>Overview</span>
                 </a>
-                <a href="{% url 'dashboard-cases' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
-                    <span>📁</span><span>Submitted Cases</span>
+                <a href="{% url 'dashboard-cases' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                    <span>Submitted Cases</span>
                 </a>
-                <a href="{% url 'dashboard-chain-verify' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
-                    <span>🔗</span><span>Chain Integrity</span>
+                <a href="{% url 'dashboard-chain-verify' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    <span>Chain Integrity</span>
                 </a>
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
-                <a href="{% url 'dashboard-certificates' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
-                    <span>📜</span><span>65B Certificates</span>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4 text-white/70">Legal</p>
+                <a href="{% url 'dashboard-certificates' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' or request.resolver_match.url_name == 'dashboard-certificate' or request.resolver_match.url_name == 'dashboard-certificate-pdf' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>65B Certificates</span>
                 </a>
 
                 {% else %}
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2" style="color: #64748b;">Main</p>
-                <a href="{% url 'dashboard-home' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-home' or request.resolver_match.url_name == 'dashboard-police-home' or request.resolver_match.url_name == 'dashboard-forensic-home' or request.resolver_match.url_name == 'dashboard-bcc-home' or request.resolver_match.url_name == 'dashboard-judiciary-home' %}active{% endif %}">
-                    <span>🏠</span><span>Overview</span>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 text-white/70">Main</p>
+                <a href="{% url 'dashboard-home' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-home' or request.resolver_match.url_name == 'dashboard-police-home' or request.resolver_match.url_name == 'dashboard-forensic-home' or request.resolver_match.url_name == 'dashboard-bcc-home' or request.resolver_match.url_name == 'dashboard-judiciary-home' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span>Overview</span>
                 </a>
-                <a href="{% url 'dashboard-cases' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
-                    <span>📁</span><span>Evidence Cases</span>
+                <a href="{% url 'dashboard-cases' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-cases' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                    <span>Evidence Cases</span>
                 </a>
-                <a href="{% url 'dashboard-chain-verify' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
-                    <span>🔗</span><span>Chain Integrity</span>
+                <a href="{% url 'dashboard-chain-verify' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-chain-verify' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    <span>Chain Integrity</span>
                 </a>
-                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4" style="color: #64748b;">Legal</p>
-                <a href="{% url 'dashboard-certificates' %}"
-                   class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' %}active{% endif %}">
-                    <span>📜</span><span>65B Certificates</span>
+                <p class="text-xs font-semibold uppercase tracking-wider px-3 py-2 mt-4 text-white/70">Legal</p>
+                <a href="{% url 'dashboard-certificates' %}" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm {% if request.resolver_match.url_name == 'dashboard-certificates' %}active{% endif %}">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>65B Certificates</span>
                 </a>
                 {% endif %}
             </nav>
         </aside>
         {% endif %}
 
-        <!-- Main Content -->
-        <main class="{% if user.is_authenticated %}ml-56{% endif %} flex-1 p-6 min-h-screen">
+        <main class="{% if user.is_authenticated %}ml-56{% endif %} flex-1 p-6 min-h-screen text-body">
             {% if messages %}
                 {% for message in messages %}
-                <div class="mb-4 px-4 py-3 rounded text-sm
-                    {% if message.tags == 'error' %}
-                        style='background-color:#7f1d1d; color:#fca5a5;'
-                    {% else %}
-                        style='background-color:#166534; color:#86efac;'
-                    {% endif %}"
-                    style="{% if message.tags == 'error' %}background-color:#7f1d1d; color:#fca5a5;{% else %}background-color:#166534; color:#86efac;{% endif %}">
+                <div class="mb-4 px-4 py-3 rounded text-sm {% if message.tags == 'error' %}msg-error{% else %}msg-success{% endif %}">
                     {{ message }}
                 </div>
                 {% endfor %}

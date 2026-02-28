@@ -3,11 +3,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.utils.decorators import method_decorator
+from django.http import HttpResponse
+from django.core.files.storage import default_storage
 
 from apps.evidence.models import Evidence
+from apps.evidence.services.encryption import decrypt_file
 from apps.blockchain.models import ForensicLog
 from apps.blockchain.services import verify_chain_integrity, verify_single_evidence_chain
 from apps.accounts.models import User
+from apps.report.models import Report
 from apps.dashboard.permissions import get_evidence_queryset_for_role, role_required
 
 
@@ -92,11 +96,14 @@ def _role_home_context(request):
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 @method_decorator(role_required(User.UserRole.POLICE), name="dispatch")
 class PoliceHomeView(View):
-    """Police dashboard: upazila case stats, case inbox link, chain status (Phase 3)."""
+    """Police dashboard: case stats, reports for confirmation, chain status. No upazila filter in dev."""
     def get(self, request):
         context = _role_home_context(request)
         context["role_label"] = "Police"
-        context["upazila"] = request.user.assigned_upazila or "All regions"
+        context["upazila"] = "All regions (dev)"
+        pending_reports = Report.objects.filter(status=Report.ReportStatus.PENDING_POLICE).order_by("-created_at")
+        context["pending_reports_count"] = pending_reports.count()
+        context["recent_reports"] = pending_reports[:5]
         return render(request, "dashboard/police/home.html", context)
 
 
@@ -269,6 +276,61 @@ class MarkForSubmissionView(View):
 
 
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+@method_decorator(role_required(User.UserRole.POLICE), name="dispatch")
+class PoliceReportsListView(View):
+    """List all reports for police: pending and forwarded. No upazila filter in dev."""
+    def get(self, request):
+        status_filter = request.GET.get("status")
+        qs = Report.objects.all().order_by("-created_at").prefetch_related("evidences")
+        if status_filter in ("pending_police", "forwarded_to_judiciary"):
+            qs = qs.filter(status=status_filter)
+        return render(request, "dashboard/police/reports.html", {
+            "report_list": qs,
+            "pending_count": Report.objects.filter(status=Report.ReportStatus.PENDING_POLICE).count(),
+            "forwarded_count": Report.objects.filter(status=Report.ReportStatus.FORWARDED_TO_JUDICIARY).count(),
+        })
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+@method_decorator(role_required(User.UserRole.POLICE), name="dispatch")
+class PoliceReportDetailView(View):
+    """Police view: full report details (testimonial, signature, linked evidence)."""
+    def get(self, request, report_id):
+        report = get_object_or_404(
+            Report.objects.prefetch_related("evidences"),
+            id=report_id,
+        )
+        return render(request, "dashboard/police/report_detail.html", {"report": report})
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+@method_decorator(role_required(User.UserRole.POLICE), name="dispatch")
+class PoliceReportConfirmView(View):
+    """Confirm report and forward to judiciary: set report status and submit linked evidence."""
+    def post(self, request, report_id):
+        report = get_object_or_404(Report, id=report_id)
+        if report.status != Report.ReportStatus.PENDING_POLICE:
+            return redirect("dashboard-police-reports")
+        report.status = Report.ReportStatus.FORWARDED_TO_JUDICIARY
+        report.save(update_fields=["status"])
+        for evidence in report.evidences.all():
+            evidence.status = Evidence.EvidenceStatus.SUBMITTED
+            evidence.save(update_fields=["status"])
+            ForensicLog.objects.create(
+                event_type=ForensicLog.EventType.TRANSFER,
+                evidence=evidence,
+                evidence_hash_snapshot=evidence.file_hash,
+                actor_user_id=str(request.user.id),
+                actor_role=request.user.role,
+                notes=f"Report {report.id} confirmed by police. Forwarded to judiciary. Officer: {request.user.username}.",
+            )
+        return redirect("dashboard-police-reports")
+
+    def get(self, request, report_id):
+        return redirect("dashboard-police-reports")
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 class DashboardCasesView(View):
     def get(self, request):
         base_qs = Evidence.objects.order_by("-uploaded_at")
@@ -304,6 +366,40 @@ class DashboardCaseDetailView(View):
             "chain_result": chain_result,
             "show_victim_identity": _show_victim_identity(request.user),
         })
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+class EvidenceFileView(View):
+    """Serve decrypted evidence file for dashboard preview (image, video, audio) or download."""
+    def get(self, request, vault_id):
+        base_qs = Evidence.objects.all()
+        allowed_qs = get_evidence_queryset_for_role(request.user, base_qs)
+        evidence = get_object_or_404(allowed_qs, vault_id=vault_id)
+
+        if not evidence.storage_path:
+            return HttpResponse("Evidence file not found.", status=404)
+
+        try:
+            with default_storage.open(evidence.storage_path, "rb") as f:
+                encrypted_bytes = f.read()
+        except Exception:
+            return HttpResponse("Storage read failed.", status=502)
+
+        if evidence.is_encrypted and evidence.encryption_nonce:
+            try:
+                raw_bytes = decrypt_file(
+                    encrypted_bytes,
+                    bytes(evidence.encryption_nonce),
+                )
+            except Exception:
+                return HttpResponse("Decryption failed.", status=502)
+        else:
+            raw_bytes = encrypted_bytes
+
+        mime = (evidence.file_mime_type or "").strip() or "application/octet-stream"
+        response = HttpResponse(raw_bytes, content_type=mime)
+        response["Content-Disposition"] = "inline"
+        return response
 
 
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")

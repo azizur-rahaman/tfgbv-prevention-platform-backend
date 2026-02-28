@@ -3,34 +3,34 @@
 
 {% block content %}
 <div class="mb-6">
-    <a href="{% url 'dashboard-case-detail' evidence.vault_id %}" class="text-sm mb-2 inline-block" style="color: #60a5fa;">← Case Detail</a>
-    <h1 class="text-2xl font-bold text-white">Hash Re-verification Report</h1>
-    <p class="text-sm mt-1" style="color: #94a3b8;">Vault: {{ evidence.vault_id }}</p>
+    <a href="{% url 'dashboard-case-detail' evidence.vault_id %}" class="text-sm mb-2 inline-block link-primary">Return to case</a>
+    <h1 class="text-2xl font-bold text-body">Hash re-verification report</h1>
+    <p class="text-sm mt-1 text-muted">Vault: {{ evidence.vault_id }}</p>
 </div>
 
 <div class="card p-6 mb-6 {% if match %}chain-intact{% else %}chain-broken{% endif %}">
-    <p class="text-lg font-bold">Result: {% if match %}✓ MATCH{% else %}✗ MISMATCH{% endif %}</p>
-    {% if error %}<p class="text-sm mt-2" style="color: #fca5a5;">{{ error }}</p>{% endif %}
+    <p class="text-lg font-bold text-body">Result: {% if match %}MATCH{% else %}MISMATCH{% endif %}</p>
+    {% if error %}<p class="text-sm mt-2 text-bd-red">{{ error }}</p>{% endif %}
 </div>
 
 <div class="card p-6 space-y-4">
     <div>
-        <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Stored hash (Evidence record)</p>
-        <p class="hash-text text-sm font-mono" style="color: #93c5fd;">{{ stored_hash|default:"—" }}</p>
+        <p class="text-xs uppercase tracking-wider mb-1 text-muted">Stored hash (evidence record)</p>
+        <p class="hash-text text-sm">{{ stored_hash|default:"—" }}</p>
     </div>
     <div>
-        <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Recomputed hash (from storage)</p>
-        <p class="hash-text text-sm font-mono" style="color: #86efac;">{{ computed_hash|default:"—" }}</p>
+        <p class="text-xs uppercase tracking-wider mb-1 text-muted">Recomputed hash (from storage)</p>
+        <p class="hash-text text-sm">{{ computed_hash|default:"—" }}</p>
     </div>
     {% if bytes_verified %}
     <div>
-        <p class="text-xs uppercase tracking-wider mb-1" style="color: #64748b;">Bytes verified</p>
-        <p class="text-white">{{ bytes_verified }}</p>
+        <p class="text-xs uppercase tracking-wider mb-1 text-muted">Bytes verified</p>
+        <p class="text-body">{{ bytes_verified }}</p>
     </div>
     {% endif %}
 </div>
 
 <div class="mt-6">
-    <a href="{% url 'dashboard-forensic-integrity' evidence.vault_id %}" class="px-4 py-2 rounded text-sm" style="background-color: #334155; color: #e2e8f0;">Encryption Integrity Report →</a>
+    <a href="{% url 'dashboard-forensic-integrity' evidence.vault_id %}" class="px-4 py-2 rounded text-sm btn-secondary">Encryption integrity report</a>
 </div>
 {% endblock %}

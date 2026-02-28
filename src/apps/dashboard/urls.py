@@ -5,6 +5,9 @@ from apps.dashboard.views import (
     DashboardForbiddenView,
     DashboardHomeView,
     PoliceHomeView,
+    PoliceReportsListView,
+    PoliceReportDetailView,
+    PoliceReportConfirmView,
     MarkForSubmissionView,
     ForensicHomeView,
     ForensicFlaggedCasesView,
@@ -22,6 +25,7 @@ from apps.dashboard.views import (
     DashboardCertificatesView,
     DashboardCertificateView,
     DashboardCertificatePdfView,
+    EvidenceFileView,
 )
 
 urlpatterns = [
@@ -30,6 +34,9 @@ urlpatterns = [
     path("forbidden/", DashboardForbiddenView.as_view(), name="dashboard-forbidden"),
     path("", DashboardHomeView.as_view(), name="dashboard-home"),
     path("police/", PoliceHomeView.as_view(), name="dashboard-police-home"),
+    path("police/reports/", PoliceReportsListView.as_view(), name="dashboard-police-reports"),
+    path("police/reports/confirm/<uuid:report_id>/", PoliceReportConfirmView.as_view(), name="dashboard-police-report-confirm"),
+    path("police/reports/<uuid:report_id>/", PoliceReportDetailView.as_view(), name="dashboard-police-report-detail"),
     path("police/submit/<uuid:vault_id>/", MarkForSubmissionView.as_view(), name="dashboard-mark-submitted"),
     path("forensic/", ForensicHomeView.as_view(), name="dashboard-forensic-home"),
     path("forensic/flagged/", ForensicFlaggedCasesView.as_view(), name="dashboard-forensic-flagged"),
@@ -42,6 +49,7 @@ urlpatterns = [
     path("judiciary/", JudiciaryHomeView.as_view(), name="dashboard-judiciary-home"),
     path("judiciary/verdict/<uuid:vault_id>/", VerdictView.as_view(), name="dashboard-verdict"),
     path("cases/", DashboardCasesView.as_view(), name="dashboard-cases"),
+    path("cases/<uuid:vault_id>/file/", EvidenceFileView.as_view(), name="dashboard-evidence-file"),
     path("cases/<uuid:vault_id>/", DashboardCaseDetailView.as_view(), name="dashboard-case-detail"),
     path("chain/", DashboardChainVerifyView.as_view(), name="dashboard-chain-verify"),
     path("certificates/", DashboardCertificatesView.as_view(), name="dashboard-certificates"),

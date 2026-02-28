@@ -12,14 +12,14 @@
 <div class="bg-green-900/30 border border-green-700 rounded-xl px-6 py-4 mb-6 flex items-center gap-3">
     <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
     <p class="text-green-400 font-semibold">
-        ✓ Blockchain Ledger Intact — {{ total_blocks }} blocks verified
+        Blockchain ledger intact — {{ total_blocks }} blocks verified
     </p>
 </div>
 {% else %}
 <div class="bg-red-900/30 border border-red-700 rounded-xl px-6 py-4 mb-6 flex items-center gap-3">
     <div class="w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
     <div>
-        <p class="text-red-400 font-semibold">⚠ Blockchain Integrity Compromised</p>
+        <p class="text-red-400 font-semibold">Blockchain integrity compromised</p>
         <p class="text-red-600 text-xs mt-1">{{ chain_error }}</p>
     </div>
 </div>
