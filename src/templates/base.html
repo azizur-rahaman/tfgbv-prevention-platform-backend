@@ -83,7 +83,7 @@
 
                 <a href="{% url 'dashboard-home' %}"
                    class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded text-sm
-                          {% if request.resolver_match.url_name == 'dashboard-home' %}active{% endif %}">
+                          {% if request.resolver_match.url_name == 'dashboard-home' or request.resolver_match.url_name == 'dashboard-police-home' or request.resolver_match.url_name == 'dashboard-forensic-home' or request.resolver_match.url_name == 'dashboard-bcc-home' or request.resolver_match.url_name == 'dashboard-judiciary-home' %}active{% endif %}">
                     <span>🏠</span><span>Overview</span>
                 </a>
 

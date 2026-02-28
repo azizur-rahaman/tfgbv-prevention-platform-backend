@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 from apps.evidence.models import Evidence
 from apps.blockchain.services import verify_chain_integrity, verify_single_evidence_chain
 from apps.accounts.models import User
+from apps.dashboard.permissions import get_evidence_queryset_for_role
 
 
 DASHBOARD_ROLES = [
@@ -43,39 +44,91 @@ class DashboardLogoutView(View):
         return redirect("dashboard-login")
 
 
+class DashboardForbiddenView(View):
+    """Rendered when role_required redirects; no login required."""
+    def get(self, request):
+        return render(request, "dashboard/forbidden.html")
+
+
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 class DashboardHomeView(View):
+    """Redirects to role-specific dashboard home."""
     def get(self, request):
-        stats = {
-            "total": Evidence.objects.count(),
-            "verified": Evidence.objects.filter(status="verified").count(),
-            "pending": Evidence.objects.filter(status="pending").count(),
-            "flagged": Evidence.objects.filter(status="flagged").count(),
-        }
+        role = request.user.role
+        if role == User.UserRole.POLICE:
+            return redirect("dashboard-police-home")
+        if role == User.UserRole.FORENSIC_ANALYST:
+            return redirect("dashboard-forensic-home")
+        if role == User.UserRole.BCC_ADMIN:
+            return redirect("dashboard-bcc-home")
+        if role == User.UserRole.JUDICIARY:
+            return redirect("dashboard-judiciary-home")
+        return redirect("dashboard-login")
 
-        chain = verify_chain_integrity()
-        recent_evidence = Evidence.objects.order_by("-uploaded_at")[:10]
 
-        return render(request, "dashboard/home.html", {
-            "stats": stats,
-            "chain_intact": chain["is_intact"],
-            "total_blocks": chain["total_blocks"],
-            "recent_evidence": recent_evidence,
-        })
+def _role_home_context(request):
+    """Build stats and recent_evidence for role home using get_evidence_queryset_for_role."""
+    base_qs = Evidence.objects.order_by("-uploaded_at")
+    qs = get_evidence_queryset_for_role(request.user, base_qs)
+    stats = {
+        "total": qs.count(),
+        "verified": qs.filter(status="verified").count(),
+        "pending": qs.filter(status="pending").count(),
+        "flagged": qs.filter(status="flagged").count(),
+    }
+    chain = verify_chain_integrity()
+    recent_evidence = qs[:10]
+    return {
+        "stats": stats,
+        "chain_intact": chain["is_intact"],
+        "total_blocks": chain["total_blocks"],
+        "recent_evidence": recent_evidence,
+    }
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+class PoliceHomeView(View):
+    def get(self, request):
+        context = _role_home_context(request)
+        context["role_label"] = "Police"
+        return render(request, "dashboard/home.html", context)
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+class ForensicHomeView(View):
+    def get(self, request):
+        context = _role_home_context(request)
+        context["role_label"] = "Forensic Analyst"
+        return render(request, "dashboard/home.html", context)
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+class BccHomeView(View):
+    def get(self, request):
+        context = _role_home_context(request)
+        context["role_label"] = "BCC Admin"
+        return render(request, "dashboard/home.html", context)
+
+
+@method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
+class JudiciaryHomeView(View):
+    def get(self, request):
+        context = _role_home_context(request)
+        context["role_label"] = "Judiciary"
+        return render(request, "dashboard/home.html", context)
 
 
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 class DashboardCasesView(View):
     def get(self, request):
-        qs = Evidence.objects.order_by("-uploaded_at")
-
+        base_qs = Evidence.objects.order_by("-uploaded_at")
         status = request.GET.get("status")
         harm_type = request.GET.get("harm_type")
-
         if status:
-            qs = qs.filter(status=status)
+            base_qs = base_qs.filter(status=status)
         if harm_type:
-            qs = qs.filter(harm_type=harm_type)
+            base_qs = base_qs.filter(harm_type=harm_type)
+        qs = get_evidence_queryset_for_role(request.user, base_qs)
 
         return render(request, "dashboard/cases.html", {
             "evidence_list": qs,
@@ -86,7 +139,9 @@ class DashboardCasesView(View):
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 class DashboardCaseDetailView(View):
     def get(self, request, vault_id):
-        evidence = get_object_or_404(Evidence, vault_id=vault_id)
+        base_qs = Evidence.objects.all()
+        allowed_qs = get_evidence_queryset_for_role(request.user, base_qs)
+        evidence = get_object_or_404(allowed_qs, vault_id=vault_id)
         chain_result = verify_single_evidence_chain(str(vault_id))
 
         return render(request, "dashboard/case_detail.html", {
@@ -107,9 +162,8 @@ class DashboardChainVerifyView(View):
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 class DashboardCertificatesView(View):
     def get(self, request):
-        evidence_list = Evidence.objects.filter(
-            status="verified"
-        ).order_by("-uploaded_at")
+        base_qs = Evidence.objects.filter(status="verified").order_by("-uploaded_at")
+        evidence_list = get_evidence_queryset_for_role(request.user, base_qs)
 
         return render(request, "dashboard/certificates.html", {
             "evidence_list": evidence_list,
@@ -119,7 +173,9 @@ class DashboardCertificatesView(View):
 @method_decorator(login_required(login_url="/dashboard/login/"), name="dispatch")
 class DashboardCertificateView(View):
     def get(self, request, vault_id):
-        evidence = get_object_or_404(Evidence, vault_id=vault_id)
+        base_qs = Evidence.objects.all()
+        allowed_qs = get_evidence_queryset_for_role(request.user, base_qs)
+        evidence = get_object_or_404(allowed_qs, vault_id=vault_id)
         chain_result = verify_single_evidence_chain(str(vault_id))
         # Part 3 will replace this with PDF generation
         return render(request, "dashboard/case_detail.html", {
