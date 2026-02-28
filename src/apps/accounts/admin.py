@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import User, AdminAuditLog
 
 
 @admin.register(User)
@@ -70,3 +70,12 @@ class NirvhoyUserAdmin(UserAdmin):
 
     # Make nid_hash read-only in admin (should only be set programmatically)
     readonly_fields = ("nid_hash", "created_at", "updated_at")
+
+
+@admin.register(AdminAuditLog)
+class AdminAuditLogAdmin(admin.ModelAdmin):
+    list_display = ("id", "actor_user_id", "action", "target_user_id", "timestamp")
+    list_filter = ("action",)
+    search_fields = ("actor_user_id", "target_user_id")
+    readonly_fields = ("timestamp",)
+    ordering = ("-timestamp",)

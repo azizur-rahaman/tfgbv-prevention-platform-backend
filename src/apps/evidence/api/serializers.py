@@ -80,6 +80,14 @@ class EvidenceUploadSerializer(serializers.Serializer):
         max_length=20,
     )
 
+    # Upazila for jurisdiction (victim's area or police assignment); Phase 1
+    assigned_upazila = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+        max_length=100,
+    )
+
     def validate_file_hash(self, value):
         """Ensure hash is valid hex string."""
         try:

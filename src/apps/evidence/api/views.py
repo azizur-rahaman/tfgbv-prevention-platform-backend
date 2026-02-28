@@ -54,6 +54,7 @@ class EvidenceUploadView(APIView):
                 description=serializer.validated_data.get("description"),
                 device_id=serializer.validated_data.get("device_id"),
                 app_version=serializer.validated_data.get("app_version"),
+                assigned_upazila=serializer.validated_data.get("assigned_upazila") or None,
             )
 
             return Response(

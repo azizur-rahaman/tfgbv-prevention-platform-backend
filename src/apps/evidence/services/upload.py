@@ -32,6 +32,7 @@ def ingest_evidence(
     description=None,
     device_id=None,
     app_version=None,
+    assigned_upazila=None,
 ) -> dict:
     """
     The main forensic ingest pipeline. Called by the API view.
@@ -83,6 +84,7 @@ def ingest_evidence(
         description=description,
         device_id=device_id,
         app_version=app_version,
+        assigned_upazila=assigned_upazila,
         original_size_bytes=original_size,
         stored_size_bytes=stored_size,
         is_encrypted=True,

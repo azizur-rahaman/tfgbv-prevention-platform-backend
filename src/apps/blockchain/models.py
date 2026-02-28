@@ -22,6 +22,7 @@ class ForensicLog(models.Model):
         ACCESS = "access", "Evidence Accessed"
         VERIFICATION = "verification", "Hash Verified"
         TRANSFER = "transfer", "Transferred to Court"
+        VERDICT = "verdict", "Verdict Recorded"
         GENESIS = "genesis", "Genesis Block"
 
     # ------------------------------------------------------------------ #

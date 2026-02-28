@@ -1,6 +1,7 @@
 import hashlib
 import uuid
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 from django.db import models
 
 
@@ -108,3 +109,45 @@ class User(AbstractUser):
     def is_verified_victim(self) -> bool:
         """A victim whose NID has been confirmed via biometric check."""
         return self.role == self.UserRole.VICTIM and self.nid_verified
+
+
+class AdminAuditLog(models.Model):
+    """
+    Audit log for BCC admin actions: user created, deactivated, role changed.
+    Phase 1 model for BCC dashboard (Phase 5).
+    """
+
+    class ActionType(models.TextChoices):
+        USER_CREATED = "user_created", "User Created"
+        USER_DEACTIVATED = "user_deactivated", "User Deactivated"
+        USER_ACTIVATED = "user_activated", "User Activated"
+        ROLE_CHANGED = "role_changed", "Role Changed"
+
+    actor_user_id = models.CharField(
+        max_length=36,
+        help_text="UUID of the BCC admin who performed the action.",
+    )
+    action = models.CharField(
+        max_length=30,
+        choices=ActionType.choices,
+    )
+    target_user_id = models.CharField(
+        max_length=36,
+        null=True,
+        blank=True,
+        help_text="UUID of the user who was created/deactivated/edited.",
+    )
+    extra = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Extra context e.g. old_role, new_role.",
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Admin Audit Log"
+        verbose_name_plural = "Admin Audit Logs"
+        ordering = ["-timestamp"]
+
+    def __str__(self):
+        return f"{self.get_action_display()} by {self.actor_user_id} at {self.timestamp}"

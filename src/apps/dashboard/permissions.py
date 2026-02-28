@@ -65,7 +65,9 @@ def get_evidence_queryset_for_role(user, base_queryset):
     from apps.evidence.models import Evidence
 
     if user.role == User.UserRole.POLICE:
-        # For now police see all — in production filter by upazila
+        # Police see evidence for their assigned upazila; if no upazila set, see all
+        if user.assigned_upazila:
+            return base_queryset.filter(assigned_upazila=user.assigned_upazila)
         return base_queryset
 
     elif user.role == User.UserRole.FORENSIC_ANALYST:

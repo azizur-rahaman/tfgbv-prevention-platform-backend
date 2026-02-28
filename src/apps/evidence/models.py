@@ -212,6 +212,47 @@ class Evidence(models.Model):
         help_text="Version of the Nirvhoy Flutter app used for capture.",
     )
 
+    # ------------------------------------------------------------------ #
+    # JURISDICTION (Phase 1 — Police upazila filtering)
+    # ------------------------------------------------------------------ #
+    assigned_upazila = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Upazila this evidence is assigned to. Police see only evidence for their assigned_upazila.",
+    )
+
+    # ------------------------------------------------------------------ #
+    # VERDICT / DISPOSITION (Phase 1 — Judiciary)
+    # ------------------------------------------------------------------ #
+    class VerdictStatus(models.TextChoices):
+        ADMITTED = "admitted", "Admitted"
+        REJECTED = "rejected", "Rejected"
+        UNDER_REVIEW = "under_review", "Under Review"
+
+    verdict = models.CharField(
+        max_length=20,
+        choices=VerdictStatus.choices,
+        null=True,
+        blank=True,
+        help_text="Court disposition recorded by judiciary.",
+    )
+
+    verdict_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the verdict was recorded.",
+    )
+
+    verdict_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="verdicts_recorded",
+        help_text="Judiciary user who recorded the verdict.",
+    )
+
     class Meta:
         verbose_name = "Evidence Record"
         verbose_name_plural = "Evidence Records"
@@ -220,6 +261,7 @@ class Evidence(models.Model):
             models.Index(fields=["reporter", "status"]),
             models.Index(fields=["file_hash"]),
             models.Index(fields=["uploaded_at"]),
+            models.Index(fields=["assigned_upazila"]),
         ]
 
     def __str__(self):
@@ -232,3 +274,55 @@ class Evidence(models.Model):
         For prototype: just returns the stored verification state.
         """
         return self.is_hash_verified
+
+
+class EvidencePurgeRequest(models.Model):
+    """
+    Victim request to delete evidence. BCC reviews and approves/denies.
+    Deletion touches chain of custody; Phase 1 model for BCC dashboard (Phase 5).
+    """
+
+    class RequestStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        APPROVED = "approved", "Approved"
+        DENIED = "denied", "Denied"
+
+    evidence = models.ForeignKey(
+        Evidence,
+        on_delete=models.CASCADE,
+        related_name="purge_requests",
+        help_text="Evidence the victim wants purged.",
+    )
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="purge_requests_made",
+        help_text="User (typically victim/reporter) who requested purge.",
+    )
+    reason = models.TextField(
+        blank=True,
+        help_text="Reason for purge request.",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=RequestStatus.choices,
+        default=RequestStatus.PENDING,
+    )
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="purge_requests_reviewed",
+        help_text="BCC admin who reviewed.",
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Evidence Purge Request"
+        verbose_name_plural = "Evidence Purge Requests"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Purge {self.evidence.vault_id} — {self.get_status_display()}"
